@@ -33,10 +33,11 @@
             background-attachment: fixed;
         }
 
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
+        /* Header */
         header {
-            padding: 20px 0;
+            padding: 16px 0;
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
@@ -47,114 +48,140 @@
 
         header .container { display: flex; justify-content: space-between; align-items: center; }
 
-        .logo-block { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .logo-icon { width: 40px; height: 40px; object-fit: contain; }
-        .logo-text { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #fff; }
+        .logo-block { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo-icon { width: 36px; height: 36px; object-fit: contain; }
+        .logo-text { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #fff; }
 
-        nav a { color: var(--text-muted); text-decoration: none; margin-left: 32px; font-size: 14px; font-weight: 500; transition: color 0.3s; }
+        nav { display: flex; gap: 24px; }
+        nav a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.3s; }
         nav a:hover { color: var(--accent-blue); }
 
-        .hero { padding: 80px 0; }
-        .hero-grid { display: block; }
+        @media (max-width: 768px) {
+            nav { display: none; } /* Скрываем навигацию на мобильных для чистоты дизайна */
+        }
+
+        /* Hero Screen */
+        .hero { padding: 60px 0; }
+        .grid-2 { display: flex; flex-direction: column; gap: 40px; }
 
         @media (min-width: 992px) {
-            .hero-grid { display: table; width: 100%; table-layout: fixed; }
-            .hero-text-cell, .hero-image-cell { display: table-cell; vertical-align: middle; }
-            .hero-text-cell { width: 55%; padding-right: 48px; }
+            .grid-2 { flex-direction: row; align-items: center; }
+            .hero-text-cell { width: 55%; padding-right: 40px; }
             .hero-image-cell { width: 45%; }
         }
 
         .badge {
-            display: inline-block; padding: 6px 16px; background: rgba(0, 210, 255, 0.08);
+            display: inline-block; padding: 6px 14px; background: rgba(0, 210, 255, 0.08);
             border: 1px solid rgba(0, 210, 255, 0.2); color: var(--accent-blue);
-            border-radius: 100px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 24px;
+            border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 20px;
+            letter-spacing: 0.5px;
         }
 
         h1 {
-            font-size: 46px; font-weight: 800; line-height: 1.2; margin-bottom: 24px;
+            font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 20px;
             background: linear-gradient(180deg, #ffffff 0%, #a5b4fc 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        @media (max-width: 768px) { h1 { font-size: 32px; } }
+        @media (max-width: 768px) { h1 { font-size: 28px; } }
 
-        .hero p { font-size: 18px; color: var(--text-muted); margin-bottom: 40px; }
+        .hero p { font-size: 16px; color: var(--text-muted); margin-bottom: 32px; }
 
         .btn {
-            display: inline-block; padding: 14px 32px;
+            display: inline-block; padding: 14px 28px;
             background: linear-gradient(135deg, var(--accent-blue-deep) 0%, #00a2ff 100%);
-            color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600;
+            color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;
             transition: all 0.3s; box-shadow: 0 4px 20px rgba(0, 102, 255, 0.3); border: none; cursor: pointer;
+            text-align: center;
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0, 210, 255, 0.4); }
+        @media (max-width: 480px) { .btn { display: block; width: 100%; } }
 
-        .responsive-img { max-width: 100%; height: auto; border-radius: 16px; }
-        .glow-blue { box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); }
-        .glow-red { box-shadow: 0 0 40px rgba(255, 42, 95, 0.15); }
+        .responsive-img { max-width: 100%; height: auto; border-radius: 12px; display: block; margin: 0 auto; }
+        .glow-blue { box-shadow: 0 0 30px rgba(0, 210, 255, 0.12); }
+        .glow-red { box-shadow: 0 0 30px rgba(255, 42, 95, 0.12); }
 
-        section { padding: 80px 0; border-top: 1px solid var(--border-color); }
-        .section-header { text-align: center; max-width: 700px; margin: 0 auto 60px; }
-        .section-header h2 { font-size: 32px; font-weight: 800; margin-bottom: 16px; }
-        .section-header p { color: var(--text-muted); font-size: 16px; }
+        /* Sections General */
+        section { padding: 60px 0; border-top: 1px solid var(--border-color); }
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 48px; }
+        .section-header h2 { font-size: 28px; font-weight: 800; margin-bottom: 14px; color: #fff; }
+        @media (max-width: 768px) { .section-header h2 { font-size: 24px; } }
+        .section-header p { color: var(--text-muted); font-size: 15px; }
 
-        .columns-3 { display: block; }
+        /* Cards Grid */
+        .cards-grid { display: flex; flex-direction: column; gap: 20px; }
         @media (min-width: 768px) {
-            .columns-3 { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 20px 0; }
-            .col-3 { display: table-cell; vertical-align: top; }
+            .cards-grid { flex-direction: row; }
+            .col-3 { flex: 1; }
         }
-        @media (max-width: 767px) { .col-3 { margin-bottom: 24px; } }
 
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; height: 100%; transition: all 0.3s; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 28px; height: 100%; transition: all 0.3s; }
         .card:hover { border-color: rgba(0, 210, 255, 0.2); transform: translateY(-4px); }
-        .card h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
-        .card p { color: var(--text-muted); font-size: 14px; }
+        .card h3 { font-size: 18px; margin-bottom: 12px; color: #fff; font-weight: 700; }
+        .card p { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
 
-        .env-table { display: table; width: 100%; margin-top: 40px; }
-        .env-row { display: table-row; }
-        .env-cell { display: table-cell; padding: 20px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        .env-title { font-weight: 700; color: var(--accent-blue); width: 25%; }
-        .env-desc { color: var(--text-main); width: 75%; }
-        @media (max-width: 768px) {
-            .env-table, .env-row, .env-cell { display: block; width: 100%; }
-            .env-cell { padding: 12px 0; border-bottom: none; }
-            .env-title { margin-bottom: 4px; }
+        /* Environments List */
+        .env-list { display: flex; flex-direction: column; margin-top: 20px; }
+        .env-item { display: flex; flex-direction: column; padding: 20px 0; border-bottom: 1px solid var(--border-color); gap: 8px; }
+        @media (min-width: 768px) {
+            .env-item { flex-direction: row; align-items: center; padding: 20px; }
+            .env-title { width: 30%; flex-shrink: 0; padding-right: 20px; }
+            .env-desc { width: 70%; }
         }
+        .env-item:last-child { border-bottom: none; }
+        .env-title { font-weight: 700; color: var(--accent-blue); font-size: 16px; }
+        .env-desc { color: var(--text-main); font-size: 14px; }
 
-        .shock-section { background: radial-gradient(circle at 50% 50%, rgba(255, 42, 95, 0.03) 0%, transparent 70%); }
-        .shock-grid { display: block; }
+        /* Shock Simulator */
+        .shock-section { background: radial-gradient(circle at 50% 50%, rgba(255, 42, 95, 0.02) 0%, transparent 70%); }
+        .shock-grid { display: flex; flex-direction: column-reverse; gap: 40px; }
         @media (min-width: 992px) {
-            .shock-grid { display: table; width: 100%; table-layout: fixed; }
-            .shock-text, .shock-img { display: table-cell; vertical-align: middle; }
-            .shock-text { width: 50%; padding-left: 48px; }
+            .shock-grid { flex-direction: row; align-items: center; }
             .shock-img { width: 50%; }
+            .shock-text { width: 50%; padding-left: 40px; }
         }
 
-        .shock-list { list-style: none; margin-top: 24px; }
-        .shock-list li { position: relative; padding-left: 24px; margin-bottom: 12px; font-size: 15px; }
+        .shock-list { list-style: none; margin-top: 20px; }
+        .shock-list li { position: relative; padding-left: 24px; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
         .shock-list li::before { content: "✕"; position: absolute; left: 0; color: var(--accent-red); font-weight: bold; }
 
-        .dashboard-container { display: table; width: 100%; table-layout: fixed; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 40px; }
-        .dash-visual, .dash-controls { display: table-cell; vertical-align: middle; }
-        .dash-visual { width: 55%; text-align: center; }
-        .dash-controls { width: 45%; padding-left: 40px; }
-        @media (max-width: 991px) {
-            .dashboard-container, .dash-visual, .dash-controls { display: block; width: 100%; padding: 0; }
-            .dash-controls { margin-top: 40px; }
+        /* 3D Dashboard */
+        .dashboard-container { display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; gap: 32px; }
+        @media (min-width: 992px) {
+            .dashboard-container { flex-direction: row; align-items: center; padding: 40px; }
+            .dash-visual { width: 50%; }
+            .dash-controls { width: 50%; padding-left: 40px; }
         }
+        
+        .dash-visual img { max-width: 280px; width: 100%; height: auto; margin: 0 auto; }
+        @media (min-width: 768px) { .dash-visual img { max-width: 360px; } }
 
         .interactive-btn {
             display: block; width: 100%; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color);
             padding: 16px; border-radius: 8px; text-align: left; color: var(--text-main); margin-bottom: 12px; cursor: pointer; transition: all 0.3s;
         }
         .interactive-btn:hover, .interactive-btn.active { background: rgba(0, 210, 255, 0.06); border-color: var(--accent-blue); }
+        .interactive-btn h4 { font-size: 15px; margin-bottom: 4px; font-weight: 700; color: #fff; }
+        .interactive-btn p { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
 
-        footer { background: #04070c; padding: 60px 0 30px; border-top: 1px solid var(--border-color); font-size: 14px; color: var(--text-muted); }
-        .footer-table { display: table; width: 100%; table-layout: fixed; }
-        .footer-col { display: table-cell; vertical-align: top; }
-        @media (max-width: 768px) { .footer-table, .footer-col { display: block; width: 100%; margin-bottom: 32px; } }
+        /* Footer */
+        footer { background: #04070c; padding: 50px 0 30px; border-top: 1px solid var(--border-color); font-size: 14px; color: var(--text-muted); }
+        .footer-grid { display: flex; flex-direction: column; gap: 40px; }
+        
+        @media (min-width: 768px) {
+            .footer-grid { flex-direction: row; justify-content: space-between; }
+            .footer-col-1 { width: 40%; }
+            .footer-col-2 { width: 35%; }
+            .footer-col-3 { width: 25%; }
+        }
 
-        .contact-link { display: block; color: var(--text-main); text-decoration: none; margin-bottom: 10px; }
+        .contact-link { display: block; color: var(--text-main); text-decoration: none; margin-bottom: 10px; transition: color 0.3s; }
         .contact-link:hover { color: var(--accent-blue); }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px; padding-top: 20px;
+            text-align: center; font-size: 12px; color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -176,7 +203,7 @@
 
     <section class="hero" id="about">
         <div class="container">
-            <div class="hero-grid">
+            <div class="grid-2">
                 <div class="hero-text-cell">
                     <span class="badge">Математическое моделирование</span>
                     <h1>Не просто BI или отчёты. Инструмент системного понимания бизнеса.</h1>
@@ -196,7 +223,7 @@
                 <h2>Интеллектуальное ядро платформы</h2>
                 <p>Уникальная математическая модель, в которой организация описывается через сквозное взаимодействие внутренней системы и сложной внешней среды.</p>
             </div>
-            <div class="columns-3">
+            <div class="cards-grid">
                 <div class="col-3">
                     <div class="card">
                         <h3>Графовое моделирование</h3>
@@ -223,24 +250,24 @@
         <div class="container">
             <div class="section-header">
                 <h2>Специализированные среды моделирования</h2>
-                <p>Готовые пресеты динамических моделей, оптимизированные под специфические вызовы различных отраслей.</p>
+                <p>Готовые пресеты динамических моделей, настроенные под специфические вызовы различных отраслей.</p>
             </div>
-            <div class="env-table">
-                <div class="env-row">
-                    <div class="env-cell env-title">Fintech-компании</div>
-                    <div class="env-cell env-desc">Динамика изменений compliance рисков, управление ростом транзакционной нагрузки, стресс-тесты кризисов доверия и мгновенной ликвидности.</div>
+            <div class="env-list">
+                <div class="env-item">
+                    <div class="env-title">Fintech-компании</div>
+                    <div class="env-desc">Динамика изменений compliance рисков, управление ростом транзакционной нагрузки, стресс-тесты кризисов доверия и мгновенной ликвидности.</div>
                 </div>
-                <div class="env-row">
-                    <div class="env-cell env-title">Разработка ПО</div>
-                    <div class="env-cell env-desc">Учет технического долга, моделирование критической зависимости от ключевых специалистов, оценка выгорания и перегрева команды.</div>
+                <div class="env-item">
+                    <div class="env-title">Разработка ПО</div>
+                    <div class="env-desc">Учет технического долга, моделирование критической зависимости от ключевых специалистов, оценка выгорания и перегрева команды.</div>
                 </div>
-                <div class="env-row">
-                    <div class="env-cell env-title">Платформы и e-commerce</div>
-                    <div class="env-cell env-desc">Поиск математического баланса интересов продавцов (мерчантов), конечных пользователей и операционной выгоды самой экосистемы.</div>
+                <div class="env-item">
+                    <div class="env-title">Платформы и e-commerce</div>
+                    <div class="env-desc">Поиск математического баланса интересов продавцов (мерчантов), конечных пользователей и операционной выгоды самой экосистемы.</div>
                 </div>
-                <div class="env-row">
-                    <div class="env-cell env-title">Логистика и розница</div>
-                    <div class="env-cell env-desc">Моделирование каскадных сбоев цепочек поставок, валютные риски, международные ограничения и конфликты контроля во франчайзинге.</div>
+                <div class="env-item">
+                    <div class="env-title">Логистика и розница</div>
+                    <div class="env-desc">Моделирование каскадных сбоев цепочек поставок, валютные риски, международные ограничения и конфликты контроля во франчайзинге.</div>
                 </div>
             </div>
         </div>
@@ -275,7 +302,7 @@
             </div>
             <div class="dashboard-container">
                 <div class="dash-visual">
-                    <img id="dashImage" src="methorics_3d_radar_normal.webp" alt="3D Диаграмма" class="responsive-img" style="background:transparent;">
+                    <img id="dashImage" src="methorics_3d_radar_normal.webp" alt="3D Диаграмма" class="responsive-img">
                 </div>
                 <div class="dash-controls">
                     <button class="interactive-btn active" onclick="switchDash('normal', this)">
@@ -297,24 +324,24 @@
 
     <footer id="contacts">
         <div class="container">
-            <div class="footer-table">
-                <div class="footer-col" style="width: 40%;">
-                    <img src="methorics_logo_text.webp" alt="Methorics" style="max-width: 180px; height: auto; margin-bottom: 16px;">
-                    <p style="max-width: 300px;">Проверяйте решения до того, как они становятся последствиями.</p>
+            <div class="footer-grid">
+                <div class="footer-col-1">
+                    <img src="methorics_logo_text.webp" alt="Methorics" style="max-width: 160px; height: auto; margin-bottom: 16px; display: block;">
+                    <p style="max-width: 300px; font-size: 14px; line-height: 1.5;">Проверяйте решения до того, как они становятся последствиями.</p>
                 </div>
-                <div class="footer-col" style="width: 35%;">
-                    <h4 style="color:#fff; margin-bottom: 16px;">Связь с нами</h4>
+                <div class="footer-col-2">
+                    <h4 style="color:#fff; margin-bottom: 16px; font-weight: 700;">Связь с нами</h4>
                     <a href="https://t.me/methorics" class="contact-link">✈ Telegram: @methorics</a>
                     <a href="https://wa.me/37258477088" class="contact-link">💬 WhatsApp: +372 5847 7088</a>
                     <a href="mailto:info@methorics.com" class="contact-link">✉ Email: info@methorics.com</a>
                 </div>
-                <div class="footer-col" style="width: 25%;">
-                    <h4 style="color:#fff; margin-bottom: 16px;">Локация</h4>
-                    <p style="color: var(--text-main); margin-bottom: 8px;">Юрисдикция: Эстония</p>
+                <div class="footer-col-3">
+                    <h4 style="color:#fff; margin-bottom: 16px; font-weight: 700;">Локация</h4>
+                    <p style="color: var(--text-main); margin-bottom: 10px;">Юрисдикция: Эстония</p>
                     <a href="https://methorics.com" class="contact-link" style="color: var(--accent-blue);">www.methorics.com</a>
                 </div>
             </div>
-            <div style="border-top:1px solid rgba(255,255,255,0.05); margin-top:40px; padding-top:20px; text-align:center; font-size:12px;">
+            <div class="footer-bottom">
                 &copy; 2026 Methorics. Все права защищены. Базируется на современных математических моделях.
             </div>
         </div>
