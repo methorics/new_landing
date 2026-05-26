@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methorics — Платформа бизнес-симуляций нового поколения</title>
+    <style>
+        /* Общие стили и сброс */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+            background-color: #060b16;
+        }
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Навигация */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(6, 11, 22, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            background: linear-gradient(45deg, #00d2ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #00d2ff;
+        }
+        .cta-nav {
+            background: linear-gradient(135deg, #0072ff, #00d2ff);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600 !important;
+            color: #fff !important;
+        }
+
+        /* Базовый класс для полноэкранных секций */
+        .section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 5%;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        /* Коррекция для мобильных (отключение fixed background для плавности скролла) */
+        @media (max-width: 1024px) {
+            .section {
+                background-attachment: scroll;
+            }
+            .nav-links {
+                display: none; /* Упрощение для мобильных */
+            }
+        }
+
+        /* Затемняющий оверлей для читаемости текста */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(6,11,22,0.6) 0%, rgba(6,11,22,0.85) 100%);
+            z-index: 1;
+        }
+
+        /* Контент внутри секций */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Стилизация типографики */
+        h1 {
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(120deg, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #00d2ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        h3 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 30px;
+            max-width: 700px;
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #0072ff, #00d2ff);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
+        }
+
+        /* Специфическая разметка для блоков */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 34px; }
+            h2 { font-size: 26px; }
+            p { font-size: 16px; }
+        }
+
+        /* Карточки для контента */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .card:hover {
+            border-color: rgba(0, 210, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        /* Подключение фонов для всех 9 секций */
+        #sec1 { background-image: url('background.jpg'); }
+        #sec2 { background-image: url('background2.jpg'); }
+        #sec3 { background-image: url('background3.jpg'); }
+        #sec4 { background-image: url('background4.jpg'); }
+        #sec5 { background-image: url('background5.jpg'); }
+        #sec6 { background-image: url('background6.jpg'); }
+        #sec7 { background-image: url('background7.jpg'); }
+        #sec8 { background-image: url('background8.jpg'); }
+        #sec9 { background-image: url('background9.jpg'); }
+
+        /* Контакты */
+        .contact-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        .contact-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 18px;
+        }
+        .contact-list a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .contact-list a:hover {
+            color: #00d2ff;
+        }
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: #00d2ff;
+        }
+        .footer-info {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#sec1" class="logo">METHORICS</a>
+        <div class="nav-links">
+            <a href="#sec2">О продукте</a>
+            <a href="#sec4">Технологии</a>
+            <a href="#sec5">Сценарии</a>
+            <a href="#sec6">Ценность</a>
+            <a href="#sec9" class="cta-nav">Контакты</a>
+        </div>
+    </nav>
+
+    <section id="sec1" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h1>Управляйте хаосом.<br>Моделируйте успех.</h1>
+            <p>Меторика — это передовая среда бизнес-симуляций, разработанная для глубокого анализа, стресс-тестирования алгоритмов управления и кратного повышения операционной эффективности компании.</p>
+            <a href="#sec9" class="btn">Протестировать симулятор</a>
+        </div>
+    </section>
+
+    <section id="sec2" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Вызов современного бизнеса</h2>
+            <div class="grid-2">
+                <div>
+                    <p>Цена ошибки в реальном секторе и финтехе растет экспоненциально. Проверка гипотез «вживую» разрушает маржинальность, а классические инструменты планирования не учитывают динамический хаос рынка.</p>
+                </div>
+                <div class="card">
+                    <h3>С чем борются компании?</h3>
+                    <p style="font-size: 16px; margin: 0;">Асинхронность внутренних процессов, скрытые кассовые разрывы, нелинейные зависимости в цепочках поставок и человеческий фактор при принятии критических решений.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec3" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Решение: Цифровой полигон</h2>
+            <p>Methorics предоставляет изолированную виртуальную среду, полностью воспроизводящую экономику, внутренние процессы и операционные циклы вашей организации. Тестируйте управленческие стратегии без риска для реального капитала.</p>
+        </div>
+    </section>
+
+    <section id="sec4" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Математическое превосходство</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Точность симуляции</h3>
+                    <p style="font-size: 16px; margin: 0;">В основе платформы Methorics лежат современные математические модели и строгие алгоритмы обработки данных. Мы отказались от абстрактных допущений в пользу прецизионного моделирования сложных стохастических процессов.</p>
+                </div>
+                <div>
+                    <p>Каждое действие пользователя, макроэкономическое колебание или изменение внутренней метрики обсчитывается ядром системы в реальном времени, создавая честный детерминированный отклик среды.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec5" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Многопользовательские симуляции</h2>
+            <p style="margin-bottom: 50px;">Погрузитесь в глубокие кросс-функциональные сценарии, распределяя роли внутри команды для проверки слаженности процессов.</p>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Операционный консалтинг</h3>
+                    <p style="font-size: 15px; margin: 0;">Выявление узких мест в архитектуре управления, декомпозиция сложных процессов и проектирование оптимальных регламентов взаимодействия.</p>
+                </div>
+                <div class="card">
+                    <h3>Управление и Финтех</h3>
+                    <p style="font-size: 15px; margin: 0;">Моделирование финансовых потоков, распределение ликвидности и стресс-тестирование алгоритмов в условиях высокой волатильности.</p>
+                </div>
+                <div class="card">
+                    <h3>Стратегические сессии</h3>
+                    <p style="font-size: 15px; margin: 0;">Отработка кризисных сценариев, масштабирования бизнеса и выхода на новые рынки внутри безопасного цифрового двойника.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec6" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Непрерывное улучшение</h2>
+            <p>Философия Methorics неразрывно связана с методологиями Lean и Kaizen. Симулятор наглядно визуализирует потери, нерациональное использование ресурсов и перегрузку процессов, позволяя вашей команде выработать привычку к непрерывной точечной оптимизации.</p>
+        </div>
+    </section>
+
+    <section id="sec7" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Для кого этот продукт</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Основатели и CEO</h3>
+                    <p style="font-size: 15px; margin: 0;">Для проверки жизнеспособности новых бизнес-моделей и обучения топ-менеджмента стратегическому видению.</p>
+                </div>
+                <div class="card">
+                    <h3>Директора по операциям</h3>
+                    <p style="font-size: 15px; margin: 0;">Для синхронизации отделов, ликвидации издержек и отладки цепочек создания ценности.</p>
+                </div>
+                <div class="card">
+                    <h3>Финтех-разработчики</h3>
+                    <p style="font-size: 15px; margin: 0;">Для тестирования алгоритмических и инфраструктурных решений в динамической симуляционной среде.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec8" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Гибкая кастомизация</h2>
+            <p>Архитектура Methorics позволяет адаптировать симуляционные сценарии под специфические требования крупных enterprise-клиентов. Мы переносим логику ваших реальных процессов на наше математическое ядро, создавая персональный полигон для вашей экосистемы.</p>
+        </div>
+    </section>
+
+    <section id="sec9" class="section">
+        <div class="overlay"></div>
+        <div class="container">
+            <h2>Связаться с нами</h2>
+            <p>Готовы перевести управление эффективностью на математические рельсы? Свяжитесь с нами любым удобным способом для демонстрации платформы.</p>
+            
+            <div class="grid-2">
+                <div>
+                    <ul class="contact-list">
+                        <li>
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/></svg>
+                            <a href="https://t.me/methorics" target="_blank">@methorics</a>
+                        </li>
+                        <li>
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-4.846c1.66.986 3.292 1.514 5.352 1.515 5.516 0 10.005-4.497 10.008-10.02.001-2.675-1.036-5.19-2.919-7.076C17.152 1.686 14.64 1.65 12.013 1.65c-5.522 0-10.012 4.496-10.015 10.022-.001 2.12.56 4.192 1.624 5.994L2.613 21.3l3.85-1.012z"/></svg>
+                            <a href="https://wa.me/37258477088" target="_blank">+372 5847 7088</a>
+                        </li>
+                        <li>
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            <a href="mailto:info@methorics.com">info@methorics.com</a>
+                        </li>
+                        <li>
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.92 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14c-.17-.64-.26-1.31-.26-2s.09-1.36.26-2h3.38c-.09.66-.14 1.32-.14 2 0 .68.05 1.34.14 2H4.26zm.82 2h2.95c.32 1.3.79 2.5 1.38 3.56A8.03 8.03 0 0 1 5.08 16zm2.95-8H5.08a8.03 8.03 0 0 1 4.31-3.56A15.65 15.65 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.14-1.32-.14-2 0-.68.05-1.34.14-2h4.68c.09.66.14 1.32.14 2 0 .68-.05 1.34-.14 2zm.28 5.56c.59-1.06 1.06-2.26 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM16.36 14c.09-.66.14-1.32.14-2 0-.68-.05-1.34-.14-2h3.38c.17.64.26 1.31.26 2s-.09 1.36-.26 2h-3.38z"/></svg>
+                            <a href="https://methorics.com">methorics.com</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-info">
+                <p style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.4);">
+                    &copy; 2026 Methorics. Все права защищены.<br>
+                    Юрисдикция: Эстония (Estonia).
+                </p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
