@@ -1,134 +1,332 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Меторика — Система моделирования бизнеса</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methorics — Система моделирования бизнеса и управленческой динамики</title>
+    <style>
+        :root {
+            --bg-dark: #070b12;
+            --bg-card: #0d1527;
+            --accent-blue: #00d2ff;
+            --accent-blue-glow: rgba(0, 210, 255, 0.2);
+            --accent-blue-deep: #0066ff;
+            --accent-red: #ff2a5f;
+            --accent-red-glow: rgba(255, 42, 95, 0.2);
+            --text-main: #e2e8f0;
+            --text-muted: #8a99ad;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 114, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 42, 95, 0.03) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: rgba(7, 11, 18, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo-block { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; object-fit: contain; }
+        .logo-text { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #fff; }
+
+        nav a { color: var(--text-muted); text-decoration: none; margin-left: 32px; font-size: 14px; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-blue); }
+
+        .hero { padding: 80px 0; }
+        .hero-grid { display: block; }
+
+        @media (min-width: 992px) {
+            .hero-grid { display: table; width: 100%; table-layout: fixed; }
+            .hero-text-cell, .hero-image-cell { display: table-cell; vertical-align: middle; }
+            .hero-text-cell { width: 55%; padding-right: 48px; }
+            .hero-image-cell { width: 45%; }
+        }
+
+        .badge {
+            display: inline-block; padding: 6px 16px; background: rgba(0, 210, 255, 0.08);
+            border: 1px solid rgba(0, 210, 255, 0.2); color: var(--accent-blue);
+            border-radius: 100px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 46px; font-weight: 800; line-height: 1.2; margin-bottom: 24px;
+            background: linear-gradient(180deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        @media (max-width: 768px) { h1 { font-size: 32px; } }
+
+        .hero p { font-size: 18px; color: var(--text-muted); margin-bottom: 40px; }
+
+        .btn {
+            display: inline-block; padding: 14px 32px;
+            background: linear-gradient(135deg, var(--accent-blue-deep) 0%, #00a2ff 100%);
+            color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 4px 20px rgba(0, 102, 255, 0.3); border: none; cursor: pointer;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0, 210, 255, 0.4); }
+
+        .responsive-img { max-width: 100%; height: auto; border-radius: 16px; }
+        .glow-blue { box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); }
+        .glow-red { box-shadow: 0 0 40px rgba(255, 42, 95, 0.15); }
+
+        section { padding: 80px 0; border-top: 1px solid var(--border-color); }
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 60px; }
+        .section-header h2 { font-size: 32px; font-weight: 800; margin-bottom: 16px; }
+        .section-header p { color: var(--text-muted); font-size: 16px; }
+
+        .columns-3 { display: block; }
+        @media (min-width: 768px) {
+            .columns-3 { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 20px 0; }
+            .col-3 { display: table-cell; vertical-align: top; }
+        }
+        @media (max-width: 767px) { .col-3 { margin-bottom: 24px; } }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; height: 100%; transition: all 0.3s; }
+        .card:hover { border-color: rgba(0, 210, 255, 0.2); transform: translateY(-4px); }
+        .card h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 14px; }
+
+        .env-table { display: table; width: 100%; margin-top: 40px; }
+        .env-row { display: table-row; }
+        .env-cell { display: table-cell; padding: 20px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .env-title { font-weight: 700; color: var(--accent-blue); width: 25%; }
+        .env-desc { color: var(--text-main); width: 75%; }
+        @media (max-width: 768px) {
+            .env-table, .env-row, .env-cell { display: block; width: 100%; }
+            .env-cell { padding: 12px 0; border-bottom: none; }
+            .env-title { margin-bottom: 4px; }
+        }
+
+        .shock-section { background: radial-gradient(circle at 50% 50%, rgba(255, 42, 95, 0.03) 0%, transparent 70%); }
+        .shock-grid { display: block; }
+        @media (min-width: 992px) {
+            .shock-grid { display: table; width: 100%; table-layout: fixed; }
+            .shock-text, .shock-img { display: table-cell; vertical-align: middle; }
+            .shock-text { width: 50%; padding-left: 48px; }
+            .shock-img { width: 50%; }
+        }
+
+        .shock-list { list-style: none; margin-top: 24px; }
+        .shock-list li { position: relative; padding-left: 24px; margin-bottom: 12px; font-size: 15px; }
+        .shock-list li::before { content: "✕"; position: absolute; left: 0; color: var(--accent-red); font-weight: bold; }
+
+        .dashboard-container { display: table; width: 100%; table-layout: fixed; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 40px; }
+        .dash-visual, .dash-controls { display: table-cell; vertical-align: middle; }
+        .dash-visual { width: 55%; text-align: center; }
+        .dash-controls { width: 45%; padding-left: 40px; }
+        @media (max-width: 991px) {
+            .dashboard-container, .dash-visual, .dash-controls { display: block; width: 100%; padding: 0; }
+            .dash-controls { margin-top: 40px; }
+        }
+
+        .interactive-btn {
+            display: block; width: 100%; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 8px; text-align: left; color: var(--text-main); margin-bottom: 12px; cursor: pointer; transition: all 0.3s;
+        }
+        .interactive-btn:hover, .interactive-btn.active { background: rgba(0, 210, 255, 0.06); border-color: var(--accent-blue); }
+
+        footer { background: #04070c; padding: 60px 0 30px; border-top: 1px solid var(--border-color); font-size: 14px; color: var(--text-muted); }
+        .footer-table { display: table; width: 100%; table-layout: fixed; }
+        .footer-col { display: table-cell; vertical-align: top; }
+        @media (max-width: 768px) { .footer-table, .footer-col { display: block; width: 100%; margin-bottom: 32px; } }
+
+        .contact-link { display: block; color: var(--text-main); text-decoration: none; margin-bottom: 10px; }
+        .contact-link:hover { color: var(--accent-blue); }
+    </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="overlay"></div>
-  <div class="container hero-content">
-    <div class="hero-text">
-      <h1>МЕТОРИКА</h1>
-      <p class="subtitle">Система моделирования бизнеса и управленческой динамики</p>
-      <p class="lead">
-        Меторика показывает поведение компании как живой системы:
-        где возникают перегрузки, конфликты, потери устойчивости и точки роста.
-      </p>
-      <a href="#about" class="btn">Узнать больше</a>
-    </div>
-  </div>
-</header>
+    <header>
+        <div class="container">
+            <a href="#" class="logo-block">
+                <img src="methorics_logo_icon.webp" alt="Methorics" class="logo-icon">
+                <span class="logo-text">Methorics</span>
+            </a>
+            <nav>
+                <a href="#about">О платформе</a>
+                <a href="#environments">Среды</a>
+                <a href="#shock">Шоковые тесты</a>
+                <a href="#dashboard">3D-Дашборд</a>
+            </nav>
+        </div>
+    </header>
 
-<section id="about" class="section">
-  <div class="container">
-    <h2>Что такое Меторика</h2>
-    <p>
-      В основе платформы — математическая модель, в которой организация
-      описывается через взаимодействие системы и среды:
-      команда, управление, рынок, мотивация, процессы и внешние изменения
-      анализируются как единая динамическая структура.
-    </p>
-  </div>
-</section>
+    <section class="hero" id="about">
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-text-cell">
+                    <span class="badge">Математическое моделирование</span>
+                    <h1>Не просто BI или отчёты. Инструмент системного понимания бизнеса.</h1>
+                    <p>Большинство аналитических систем показывают цифры прошлого. Меторика моделирует компанию как живую графовую среду — подсвечивая скрытые перегрузки, конфликты и точки роста до принятия решений.</p>
+                    <a href="#contacts" class="btn">Запросить демо-доступ</a>
+                </div>
+                <div class="hero-image-cell">
+                    <img src="methorics_network_graph.webp" alt="Графовая модель Methorics" class="responsive-img glow-blue">
+                </div>
+            </div>
+        </div>
+    </section>
 
-<section class="section dark">
-  <div class="container">
-    <h2>Что делает система</h2>
+    <section>
+        <div class="container">
+            <div class="section-header">
+                <h2>Интеллектуальное ядро платформы</h2>
+                <p>Уникальная математическая модель, в которой организация описывается через сквозное взаимодействие внутренней системы и сложной внешней среды.</p>
+            </div>
+            <div class="columns-3">
+                <div class="col-3">
+                    <div class="card">
+                        <h3>Графовое моделирование</h3>
+                        <p>Организация описывается как единая динамическая структура. Изменение параметров в одном узле запускает каскадную реакцию во всей компании.</p>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card">
+                        <h3>ИИ-агенты платформы</h3>
+                        <p>Автоматически собирают и структурируют разрозненные данные, выявляют слабые сигналы и внутренние скрытые дисбалансы системы.</p>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card">
+                        <h3>Язык ролей</h3>
+                        <p>Платформа мгновенно переводит и адаптирует одну и ту же ситуацию на языки разных специалистов: собственника, CFO, HR, COO или инвестора.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="grid cards">
-      <div class="card">
-        <h3>Сценарное моделирование</h3>
-        <p>Моделирует сценарии развития компании и прогнозирует последствия решений.</p>
-      </div>
+    <section id="environments">
+        <div class="container">
+            <div class="section-header">
+                <h2>Специализированные среды моделирования</h2>
+                <p>Готовые пресеты динамических моделей, оптимизированные под специфические вызовы различных отраслей.</p>
+            </div>
+            <div class="env-table">
+                <div class="env-row">
+                    <div class="env-cell env-title">Fintech-компании</div>
+                    <div class="env-cell env-desc">Динамика изменений compliance рисков, управление ростом транзакционной нагрузки, стресс-тесты кризисов доверия и мгновенной ликвидности.</div>
+                </div>
+                <div class="env-row">
+                    <div class="env-cell env-title">Разработка ПО</div>
+                    <div class="env-cell env-desc">Учет технического долга, моделирование критической зависимости от ключевых специалистов, оценка выгорания и перегрева команды.</div>
+                </div>
+                <div class="env-row">
+                    <div class="env-cell env-title">Платформы и e-commerce</div>
+                    <div class="env-cell env-desc">Поиск математического баланса интересов продавцов (мерчантов), конечных пользователей и операционной выгоды самой экосистемы.</div>
+                </div>
+                <div class="env-row">
+                    <div class="env-cell env-title">Логистика и розница</div>
+                    <div class="env-cell env-desc">Моделирование каскадных сбоев цепочек поставок, валютные риски, международные ограничения и конфликты контроля во франчайзинге.</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      <div class="card">
-        <h3>Системные риски</h3>
-        <p>Выявляет скрытые риски, точки перегрузки и внутренние дисбалансы.</p>
-      </div>
+    <section id="shock" class="shock-section">
+        <div class="container">
+            <div class="shock-grid">
+                <div class="shock-img">
+                    <img src="methorics_shock_simulator.webp" alt="Шоковый симулятор Methorics" class="responsive-img glow-red">
+                </div>
+                <div class="shock-text">
+                    <span class="badge" style="background:rgba(255,42,95,0.08); border-color:rgba(255,42,95,0.2); color:var(--accent-red);">Stress Testing</span>
+                    <h2>Шоковые симуляторы: Стресс-тест до наступления событий</h2>
+                    <p>Меторика показывает не просто факт удара, а развертывание сложной цепной реакции внутри структуры вашего бизнеса при наступлении критических событий.</p>
+                    <ul class="shock-list">
+                        <li>Кассовые разрывы и кризисы капитала</li>
+                        <li>Потеря ключевых сотрудников и разрушение внутренних коммуникаций</li>
+                        <li>Внутренние конфликты и жесткие регуляторные удары</li>
+                        <li>Агрессивное масштабирование и резкое падение спроса</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      <div class="card">
-        <h3>Шоковые сценарии</h3>
-        <p>Тестирует устойчивость бизнеса к кризисам и «чёрным лебедям».</p>
-      </div>
+    <section id="dashboard">
+        <div class="container">
+            <div class="section-header">
+                <h2>3D-Дашборд компании</h2>
+                <p>Визуализация состояния бизнеса в виде интерактивной трехмерной лепестковой диаграммы для мгновенного считывания системных перекосов.</p>
+            </div>
+            <div class="dashboard-container">
+                <div class="dash-visual">
+                    <img id="dashImage" src="methorics_3d_radar_normal.webp" alt="3D Диаграмма" class="responsive-img" style="background:transparent;">
+                </div>
+                <div class="dash-controls">
+                    <button class="interactive-btn active" onclick="switchDash('normal', this)">
+                        <h4>Штатный режим (Баланс)</h4>
+                        <p>Все лепестки распределены гармонично, система стабильно взаимодействует со средой.</p>
+                    </button>
+                    <button class="interactive-btn" onclick="switchDash('stress', this)">
+                        <h4>Агрессивное масштабирование</h4>
+                        <p>Явный перекос развития: критический перегрев команды разработчиков и инфраструктуры.</p>
+                    </button>
+                    <button class="interactive-btn" onclick="switchDash('crisis', this)">
+                        <h4>Регуляторный удар / Санкции</h4>
+                        <p>Сжатие финансового контура, каскадный сбой логистических связей (красная зона).</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      <div class="card">
-        <h3>Вторичные эффекты</h3>
-        <p>Показывает цепные реакции внутри организации ещё до наступления кризиса.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    <footer id="contacts">
+        <div class="container">
+            <div class="footer-table">
+                <div class="footer-col" style="width: 40%;">
+                    <img src="methorics_logo_text.webp" alt="Methorics" style="max-width: 180px; height: auto; margin-bottom: 16px;">
+                    <p style="max-width: 300px;">Проверяйте решения до того, как они становятся последствиями.</p>
+                </div>
+                <div class="footer-col" style="width: 35%;">
+                    <h4 style="color:#fff; margin-bottom: 16px;">Связь с нами</h4>
+                    <a href="https://t.me/methorics" class="contact-link">✈ Telegram: @methorics</a>
+                    <a href="https://wa.me/37258477088" class="contact-link">💬 WhatsApp: +372 5847 7088</a>
+                    <a href="mailto:info@methorics.com" class="contact-link">✉ Email: info@methorics.com</a>
+                </div>
+                <div class="footer-col" style="width: 25%;">
+                    <h4 style="color:#fff; margin-bottom: 16px;">Локация</h4>
+                    <p style="color: var(--text-main); margin-bottom: 8px;">Юрисдикция: Эстония</p>
+                    <a href="https://methorics.com" class="contact-link" style="color: var(--accent-blue);">www.methorics.com</a>
+                </div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.05); margin-top:40px; padding-top:20px; text-align:center; font-size:12px;">
+                &copy; 2026 Methorics. Все права защищены. Базируется на современных математических моделях.
+            </div>
+        </div>
+    </footer>
 
-<section class="section">
-  <div class="container">
-    <h2>Примеры сред моделирования</h2>
-
-    <div class="grid examples">
-      <div class="example">Правообладатель в сфере интеллектуальной собственности</div>
-      <div class="example">Производитель в промышленной среде</div>
-      <div class="example">Fintech-компания в регуляторной среде</div>
-      <div class="example">Платформенный бизнес в e-commerce</div>
-      <div class="example">Логистический оператор</div>
-      <div class="example">Экспортёр на международных рынках</div>
-      <div class="example">Франчайзер розничной сети</div>
-      <div class="example">Разработчик программных решений</div>
-    </div>
-  </div>
-</section>
-
-<section class="section dark">
-  <div class="container">
-    <h2>ИИ-агенты платформы</h2>
-    <div class="grid two">
-      <div>
-        <ul>
-          <li>Собирают и структурируют данные</li>
-          <li>Строят отчёты для разных специалистов</li>
-          <li>Выявляют слабые сигналы и дисбалансы</li>
-          <li>Переводят ситуацию на язык CEO, CFO, HR и инвесторов</li>
-        </ul>
-      </div>
-
-      <div>
-        <p class="quote">
-          «Меторика показывает не только сам удар,
-          но и цепную реакцию внутри системы».
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section dashboard">
-  <div class="container">
-    <h2>3D-дашборд компании</h2>
-    <p>
-      Визуализация бизнеса как живой динамической экосистемы в реальном времени.
-    </p>
-
-    <div class="dashboard-box">
-      <div class="pulse"></div>
-    </div>
-  </div>
-</section>
-
-<section class="cta">
-  <div class="container">
-    <h2>Не просто BI или отчёты.</h2>
-    <p>Инструмент системного понимания бизнеса.</p>
-    <a href="mailto:contact@metorika.ai" class="btn">Связаться</a>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <p>Меторика © 2026</p>
-  </div>
-</footer>
-
+    <script>
+        function switchDash(state, element) {
+            document.querySelectorAll('.interactive-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            const img = document.getElementById('dashImage');
+            img.src = `methorics_3d_radar_${state}.webp`;
+        }
+    </script>
 </body>
 </html>
