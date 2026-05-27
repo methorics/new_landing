@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methorics — Система моделирования бизнеса и управленческой динамики</title>
+    <meta name="description" content="Methorics — система моделирования бизнеса, шоковых сценариев и управленческой динамики.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050810;
+            --bg-card: #0b1220;
+            --accent-blue: #00d2ff;
+            --accent-blue-deep: #005fe0;
+            --accent-red: #ff2a5f;
+            --accent-gold: #f5c842;
+            --text-main: #dce6f0;
+            --text-muted: #7a8fa3;
+            --border-color: rgba(255,255,255,0.07);
+            --header-bg: rgba(5,8,16,0.92);
+            --shadow: 0 20px 56px rgba(0,0,0,0.45);
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; height: auto; }
+
+        .container {
+            width: 100%; max-width: 1180px;
+            margin: 0 auto; padding: 0 24px;
+        }
+
+        /* ── Skip link ── */
+        .skip-link {
+            position: absolute; left: -999px; top: 12px;
+            background: #fff; color: #000; padding: 10px 14px;
+            border-radius: 8px; z-index: 9999;
+        }
+        .skip-link:focus { left: 12px; }
+
+        /* ── Header ── */
+        header {
+            position: sticky; top: 0; z-index: 200;
+            background: var(--header-bg);
+            backdrop-filter: blur(16px) saturate(160%);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header-inner {
+            min-height: 70px;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        }
+        .brand { display: inline-flex; align-items: center; gap: 11px; }
+        .brand-logo { width: 36px; height: 36px; flex: 0 0 36px; object-fit: contain; }
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 21px; font-weight: 800; color: #fff;
+            white-space: nowrap; letter-spacing: 0.3px;
+        }
+        .menu-toggle {
+            display: none; width: 44px; height: 44px;
+            border: 1px solid var(--border-color); border-radius: 10px;
+            background: rgba(255,255,255,0.02); color: #fff;
+            align-items: center; justify-content: center;
+            cursor: pointer; flex: 0 0 auto;
+        }
+        .menu-toggle svg { width: 22px; height: 22px; }
+        .menu-toggle .close-icon { display: none; }
+        .menu-toggle[aria-expanded="true"] .menu-icon { display: none; }
+        .menu-toggle[aria-expanded="true"] .close-icon { display: block; }
+
+        nav.site-nav { display: flex; align-items: center; gap: 24px; }
+        .site-nav a { color: var(--text-muted); font-size: 14px; font-weight: 500; transition: color .18s; }
+        .site-nav a:hover { color: var(--accent-blue); }
+
+        /* ── Badges ── */
+        .badge {
+            display: inline-flex; padding: 5px 13px;
+            background: rgba(0,210,255,0.07); border: 1px solid rgba(0,210,255,0.2);
+            color: var(--accent-blue); border-radius: 999px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .6px; margin-bottom: 16px;
+        }
+        .badge-red { background: rgba(255,42,95,0.07); border-color: rgba(255,42,95,0.2); color: var(--accent-red); }
+        .badge-gold { background: rgba(245,200,66,0.08); border-color: rgba(245,200,66,0.22); color: var(--accent-gold); }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px 22px; border: none; border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-blue-deep), #009ee0);
+            color: #fff; font-family: var(--font-body); font-weight: 700; font-size: 15px;
+            cursor: pointer; box-shadow: 0 6px 22px rgba(0,95,224,0.3);
+            transition: transform .18s, box-shadow .18s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,180,255,0.32); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); box-shadow: none;
+        }
+        .btn-secondary:hover { border-color: rgba(0,210,255,0.3); }
+        .btn-lg { padding: 16px 30px; font-size: 16px; border-radius: 12px; }
+        .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+        /* ── Img shell ── */
+        .img-shell {
+            border: 1px solid var(--border-color); border-radius: 16px;
+            overflow: hidden; background: rgba(255,255,255,0.015);
+            box-shadow: var(--shadow);
+        }
+        .responsive-img { width: 100%; height: auto; object-fit: cover; display: block; }
+
+        /* ── Sections base ── */
+        section { padding: 80px 0; border-top: 1px solid var(--border-color); }
+        .section-header { text-align: center; max-width: 720px; margin: 0 auto 52px; }
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: clamp(22px, 2.4vw, 34px); font-weight: 800;
+            margin-bottom: 12px; color: #fff;
+        }
+        .section-header p { color: var(--text-muted); font-size: 15px; }
+
+        /* ════════════════════════════
+           HERO — bg-hero.webp
+        ════════════════════════════ */
+        .hero {
+            position: relative; padding: 0; overflow: hidden;
+            border-top: none;
+        }
+        .hero-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('bg-hero.webp');
+            background-size: cover; background-position: center 30%;
+        }
+        .hero-bg::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                100deg,
+                rgba(5,8,16,0.92) 0%,
+                rgba(5,8,16,0.75) 50%,
+                rgba(5,8,16,0.45) 100%
+            );
+        }
+        .hero-inner {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 36px;
+            padding: 80px 0 96px;
+        }
+        @media (min-width: 992px) {
+            .hero-inner { flex-direction: row; align-items: center; gap: 56px; }
+            .hero-text-cell { width: 52%; }
+            .hero-image-cell { width: 48%; }
+        }
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(30px, 4vw, 52px);
+            font-weight: 800; line-height: 1.1; margin-bottom: 20px;
+            background: linear-gradient(160deg, #ffffff 25%, #7eb6f5 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-lead { color: var(--text-muted); font-size: 16px; margin-bottom: 32px; max-width: 56ch; }
+
+        /* ════════════════════════════
+           STATS BAND
+        ════════════════════════════ */
+        .stats-band { padding: 52px 0; border-top: 1px solid var(--border-color); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; }
+        @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4,1fr); } }
+        .stat-item { text-align: center; }
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: clamp(34px, 4vw, 52px); font-weight: 800;
+            background: linear-gradient(135deg, #00d2ff, #0066ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            line-height: 1.1; margin-bottom: 6px;
+        }
+        .stat-label { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+
+        /* ════════════════════════════
+           CORE CARDS — illus-network-dark.webp
+        ════════════════════════════ */
+        .core-section {
+            position: relative; overflow: hidden;
+        }
+        .core-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('illus-network-dark.webp');
+            background-size: cover; background-position: center;
+            opacity: 0.08;
+        }
+        .core-section .container { position: relative; z-index: 1; }
+
+        .cards-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+        @media (min-width: 768px) { .cards-grid { grid-template-columns: repeat(3,1fr); } }
+        .card {
+            background: rgba(11,18,32,0.85); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 28px;
+            backdrop-filter: blur(8px);
+            transition: transform .2s, border-color .2s;
+        }
+        .card:hover { transform: translateY(-3px); border-color: rgba(0,210,255,0.22); }
+        .card-icon { font-size: 28px; margin-bottom: 14px; }
+        .card h3 { font-family: var(--font-display); font-size: 17px; margin-bottom: 10px; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+        /* ════════════════════════════
+           HOW IT WORKS — bg-section.webp + illus-digital-landscape.webp
+        ════════════════════════════ */
+        .how-section {
+            position: relative; overflow: hidden;
+        }
+        .how-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('bg-section.webp');
+            background-size: cover; background-position: center;
+        }
+        .how-bg::after {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(5,8,16,0.88);
+        }
+        .how-section .container { position: relative; z-index: 1; }
+
+        .how-layout {
+            display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center;
+        }
+        @media (min-width: 992px) { .how-layout { grid-template-columns: 1fr 1fr; gap: 64px; } }
+
+        .steps-list { display: flex; flex-direction: column; gap: 0; }
+        .step {
+            display: flex; gap: 20px; padding: 22px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .step:last-child { border-bottom: none; }
+        .step-num {
+            font-family: var(--font-display); font-size: 36px; font-weight: 800;
+            color: rgba(0,210,255,0.15); line-height: 1; flex: 0 0 48px; padding-top: 2px;
+        }
+        .step-body h3 {
+            font-family: var(--font-display); font-size: 16px; font-weight: 700;
+            color: #fff; margin-bottom: 6px;
+        }
+        .step-body p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+        .how-visual .img-shell { border-radius: 18px; overflow: hidden; }
+        .how-visual img { width: 100%; height: 420px; object-fit: cover; object-position: center; border-radius: 18px; }
+
+        /* ════════════════════════════
+           ENVIRONMENTS — illus-smart-city.webp sidebar
+        ════════════════════════════ */
+        .env-section-layout {
+            display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start;
+        }
+        @media (min-width: 992px) { .env-section-layout { grid-template-columns: 1fr 420px; gap: 56px; align-items: center; } }
+
+        .env-list {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 14px; overflow: hidden;
+        }
+        .env-item {
+            display: grid; gap: 6px; padding: 18px 22px;
+            border-top: 1px solid var(--border-color);
+            transition: background .18s;
+        }
+        .env-item:first-child { border-top: none; }
+        .env-item:hover { background: rgba(0,210,255,0.03); }
+        @media (min-width: 600px) { .env-item { grid-template-columns: 220px 1fr; align-items: start; } }
+        .env-title { font-weight: 700; color: var(--accent-blue); font-size: 14px; }
+        .env-desc  { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+
+        .env-visual { position: sticky; top: 90px; }
+        .env-visual img { width: 100%; border-radius: 18px; aspect-ratio: 3/4; object-fit: cover; }
+
+        /* ════════════════════════════
+           SHOCK — illus-crisis-network.webp + illus-data-network.webp
+        ════════════════════════════ */
+        .shock-section {
+            position: relative; overflow: hidden;
+        }
+        .shock-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('illus-data-network.webp');
+            background-size: cover; background-position: center;
+            opacity: 0.06;
+        }
+        .shock-section .container { position: relative; z-index: 1; }
+
+        .shock-grid {
+            display: grid; grid-template-columns: 1fr; gap: 48px;
+        }
+        @media (min-width: 992px) { .shock-grid { grid-template-columns: 1fr 1fr; align-items: center; } }
+
+        .shock-img img { width: 100%; border-radius: 18px; aspect-ratio: 4/3; object-fit: cover; }
+
+        .shock-list {
+            list-style: none; display: grid;
+            grid-template-columns: 1fr; gap: 10px; margin-top: 22px;
+        }
+        @media (min-width: 480px) { .shock-list { grid-template-columns: 1fr 1fr; } }
+        .shock-list li {
+            position: relative; padding: 10px 12px 10px 36px;
+            background: rgba(255,42,95,0.05); border: 1px solid rgba(255,42,95,0.12);
+            border-radius: 8px; color: var(--text-main); font-size: 14px; font-weight: 500;
+        }
+        .shock-list li::before {
+            content: "✕"; position: absolute; left: 12px; top: 10px;
+            color: var(--accent-red); font-weight: 800;
+        }
+
+        /* ════════════════════════════
+           DASHBOARD — illus-system-risk.webp фон
+        ════════════════════════════ */
+        .dashboard-section {
+            position: relative; overflow: hidden;
+        }
+        .dash-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('illus-system-risk.webp');
+            background-size: cover; background-position: center;
+            opacity: 0.05;
+        }
+        .dashboard-section .container { position: relative; z-index: 1; }
+
+        .dashboard-container {
+            display: grid; grid-template-columns: 1fr; gap: 28px;
+            background: rgba(11,18,32,0.9); border: 1px solid var(--border-color);
+            border-radius: 18px; padding: 28px;
+            backdrop-filter: blur(12px);
+        }
+        @media (min-width: 992px) {
+            .dashboard-container { grid-template-columns: 1fr 1fr; align-items: center; padding: 44px; }
+        }
+        .dash-visual img { max-width: 420px; margin: 0 auto; width: 100%; }
+
+        .interactive-btn {
+            width: 100%; display: block; text-align: left;
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
+            padding: 16px 18px; border-radius: 10px; color: var(--text-main);
+            cursor: pointer; font-family: var(--font-body);
+            transition: background .18s, border-color .18s, transform .18s;
+            margin-bottom: 10px;
+        }
+        .interactive-btn:last-child { margin-bottom: 0; }
+        .interactive-btn:hover,
+        .interactive-btn.active {
+            background: rgba(0,210,255,0.06); border-color: rgba(0,210,255,0.28);
+            transform: translateY(-1px);
+        }
+        .interactive-btn[aria-pressed="true"] { border-color: var(--accent-blue); }
+        .interactive-btn h4 { font-family: var(--font-display); color: #fff; font-size: 15px; margin-bottom: 4px; }
+        .interactive-btn p { color: var(--text-muted); font-size: 13px; }
+
+        /* ════════════════════════════
+           FAQ
+        ════════════════════════════ */
+        .faq-list { max-width: 800px; margin: 0 auto; }
+        .faq-item {
+            border: 1px solid var(--border-color); border-radius: 12px;
+            background: var(--bg-card); margin-bottom: 10px; overflow: hidden;
+        }
+        .faq-q {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            gap: 16px; padding: 18px 22px; background: none; border: none;
+            color: #fff; font-family: var(--font-display); font-size: 15px; font-weight: 700;
+            cursor: pointer; text-align: left; transition: color .18s;
+        }
+        .faq-q:hover { color: var(--accent-blue); }
+        .faq-arrow {
+            flex: 0 0 20px; width: 20px; height: 20px;
+            color: var(--text-muted); transition: transform .25s;
+        }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--accent-blue); }
+        .faq-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+        .faq-item.open .faq-body { max-height: 400px; }
+        .faq-body-inner { padding: 0 22px 20px; color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+
+        /* ════════════════════════════
+           CTA FINAL — illus-galaxy-network.webp
+        ════════════════════════════ */
+        .cta-section {
+            position: relative; overflow: hidden; text-align: center;
+        }
+        .cta-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('illus-galaxy-network.webp');
+            background-size: cover; background-position: center;
+        }
+        .cta-bg::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(5,8,16,0.82) 0%, rgba(5,8,16,0.72) 50%, rgba(5,8,16,0.92) 100%);
+        }
+        .cta-section .container { position: relative; z-index: 1; }
+        .cta-section h2 {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 3vw, 44px); font-weight: 800; color: #fff; margin-bottom: 14px;
+        }
+        .cta-section p { color: var(--text-muted); font-size: 16px; margin-bottom: 36px; }
+
+        /* ════════════════════════════
+           FOOTER — illus-digital-landscape.webp тонкий фон
+        ════════════════════════════ */
+        footer {
+            position: relative; overflow: hidden;
+            background: #03060c; border-top: 1px solid var(--border-color); padding: 60px 0 28px;
+        }
+        .footer-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('illus-digital-landscape.webp');
+            background-size: cover; background-position: center top;
+            opacity: 0.04;
+        }
+        footer .container { position: relative; z-index: 1; }
+        .footer-grid { display: grid; grid-template-columns: 1fr; gap: 32px; }
+        @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+        .footer-logo { max-width: 170px; margin-bottom: 14px; }
+        .footer-h { color: #fff; margin-bottom: 16px; font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+        .contact-link { display: block; color: var(--text-muted); margin-bottom: 10px; font-size: 14px; transition: color .18s; }
+        .contact-link:hover { color: var(--accent-blue); }
+        .footer-bottom {
+            margin-top: 44px; padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center; color: var(--text-muted); font-size: 12px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            .menu-toggle { display: inline-flex; }
+            nav.site-nav {
+                position: fixed; inset: 70px 0 auto 0;
+                display: flex; flex-direction: column; align-items: stretch;
+                padding: 8px 20px 16px;
+                background: rgba(5,8,16,0.98);
+                border-bottom: 1px solid var(--border-color);
+                transform: translateY(-130%); opacity: 0; pointer-events: none;
+                transition: transform .22s ease, opacity .22s ease;
+            }
+            nav.site-nav.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+            .site-nav a { display: block; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+            .site-nav a:last-child { border-bottom: none; }
+            .env-visual { display: none; }
+        }
+        @media (max-width: 480px) {
+            .btn { width: 100%; }
+            section { padding: 56px 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+
+    <header>
+        <div class="container header-inner">
+            <a href="#" class="brand" aria-label="Methorics — на главную">
+                <picture>
+                    <source srcset="methorics_logo_icon.webp" type="image/webp">
+                    <img src="methorics_logo_icon.png" alt="" class="brand-logo"
+                         width="36" height="36" loading="eager" decoding="async"
+                         onerror="this.style.display='none'">
+                </picture>
+                <span class="brand-name">Methorics</span>
+            </a>
+
+            <button type="button" class="menu-toggle" id="menuToggle"
+                    aria-label="Открыть меню" aria-controls="site-navigation" aria-expanded="false">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg class="close-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <nav class="site-nav" id="site-navigation" aria-label="Основная навигация">
+                <a href="#about">О платформе</a>
+                <a href="#how">Как работает</a>
+                <a href="#environments">Среды</a>
+                <a href="#shock">Стресс-тесты</a>
+                <a href="#dashboard">3D-Дашборд</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contacts">Контакты</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main">
+
+        <!-- ══ HERO ══ bg-hero.webp -->
+        <section class="hero" id="about" aria-labelledby="hero-h1">
+            <div class="hero-bg" role="presentation" aria-hidden="true"></div>
+            <div class="container">
+                <div class="hero-inner">
+                    <div class="hero-text-cell">
+                        <div class="badge">Математическое моделирование</div>
+                        <h1 id="hero-h1">Не просто BI или отчёты. Инструмент системного понимания бизнеса.</h1>
+                        <p class="hero-lead">Большинство аналитических систем показывают цифры прошлого. Метрика моделирует компанию как живую среду — подсвечивая скрытые перегрузки, конфликты, потери устойчивости и точки роста до принятия решений.</p>
+                        <div class="cta-row">
+                            <a href="#contacts" class="btn">Запросить демо-доступ</a>
+                            <a href="#dashboard" class="btn btn-secondary">Смотреть дашборд</a>
+                        </div>
+                    </div>
+                    <div class="hero-image-cell">
+                        <div class="img-shell">
+                            <img src="methorics_network_graph.webp"
+                                 alt="Графовая модель Methorics — визуализация организационных связей"
+                                 class="responsive-img" loading="eager" decoding="async"
+                                 onerror="this.src='methorics_network_graph.png'">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ STATS ══ -->
+        <div class="stats-band">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-num">12+</div>
+                        <div class="stat-label">Отраслевых пресетов моделирования</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">8</div>
+                        <div class="stat-label">Типов шоковых сценариев</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">360°</div>
+                        <div class="stat-label">Охват организационной системы</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">&lt;48ч</div>
+                        <div class="stat-label">До первых системных инсайтов</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ CORE ══ illus-network-dark.webp фон -->
+        <section class="core-section" aria-labelledby="core-h2">
+            <div class="core-bg" role="presentation" aria-hidden="true"></div>
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="core-h2">Интеллектуальное ядро платформы</h2>
+                    <p>Уникальная математическая модель, в которой организация описывается через сквозное взаимодействие внутренней системы и сложной внешней среды.</p>
+                </div>
+                <div class="cards-grid">
+                    <article class="card">
+                        <div class="card-icon">🕸</div>
+                        <h3>Графовое моделирование</h3>
+                        <p>Команда, управление, рынок, мотивация и внешние изменения анализируются как единая динамическая структура, моделируя сценарии развития.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon">🤖</div>
+                        <h3>ИИ-Агенты</h3>
+                        <p>Автоматически собирают и структурируют данные, выявляя слабые сигналы, внутренние дисбалансы компании и скрытые системные риски.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon">🗣</div>
+                        <h3>Язык ролей</h3>
+                        <p>Система переводит одну управленческую ситуацию на понятный язык собственника, CFO, HR, COO или инвестора — каждому свой срез реальности.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ HOW IT WORKS ══ bg-section.webp + illus-digital-landscape.webp -->
+        <section id="how" class="how-section" aria-labelledby="how-h2">
+            <div class="how-bg" role="presentation" aria-hidden="true"></div>
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="how-h2">Как работает Methorics</h2>
+                    <p>От первичных данных — к управленческому решению. Четыре шага системной работы с реальностью компании.</p>
+                </div>
+                <div class="how-layout">
+                    <div class="steps-list" role="list">
+                        <div class="step" role="listitem">
+                            <div class="step-num">01</div>
+                            <div class="step-body">
+                                <h3>Сбор и структурирование</h3>
+                                <p>ИИ-агенты собирают данные из внутренних источников: HR-система, финансы, CRM, переписки, операционные метрики. Шум фильтруется, сигналы усиливаются.</p>
+                            </div>
+                        </div>
+                        <div class="step" role="listitem">
+                            <div class="step-num">02</div>
+                            <div class="step-body">
+                                <h3>Построение модели</h3>
+                                <p>Компания описывается как граф взаимодействий: роли, потоки, зависимости, точки перегрузки. Математический «двойник» организации.</p>
+                            </div>
+                        </div>
+                        <div class="step" role="listitem">
+                            <div class="step-num">03</div>
+                            <div class="step-body">
+                                <h3>Симуляция сценариев</h3>
+                                <p>Прогоняются штатный режим, шоковые сценарии и стратегические развилки. Система показывает каскадные последствия до их наступления.</p>
+                            </div>
+                        </div>
+                        <div class="step" role="listitem">
+                            <div class="step-num">04</div>
+                            <div class="step-body">
+                                <h3>Ролевые инсайты</h3>
+                                <p>Каждый стейкхолдер получает выводы на своём языке: собственник видит устойчивость, CFO — кассовые риски, HR — выгорание и зависимости.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="how-visual">
+                        <div class="img-shell">
+                            <img src="illus-digital-landscape.webp"
+                                 alt="Цифровой ландшафт — визуализация процесса моделирования"
+                                 loading="lazy" decoding="async"
+                                 style="width:100%;height:420px;object-fit:cover;border-radius:16px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ ENVIRONMENTS ══ illus-smart-city.webp сайдбар -->
+        <section id="environments" aria-labelledby="env-h2">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="env-h2">Примеры сред моделирования</h2>
+                    <p>Готовые пресеты динамических моделей, настроенные под специфические вызовы различных отраслей.</p>
+                </div>
+                <div class="env-section-layout">
+                    <div class="env-list" role="list">
+                        <div class="env-item" role="listitem">
+                            <div class="env-title">Правообладатель в сфере IP</div>
+                            <div class="env-desc">Моделирование конфликтов лицензий, защиты интеллектуальной собственности, давления конкурентов и рисков потери контроля над разработками.</div>
+                        </div>
+                        <div class="env-item" role="listitem">
+                            <div class="env-title">Производитель (Промышленность)</div>
+                            <div class="env-desc">Анализ перегрузки производства, каскадных сбоев, роста брака и критического дефицита поставок сырья.</div>
+                        </div>
+                        <div class="env-item" role="listitem">
+                            <div class="env-title">Fintech-компании</div>
+                            <div class="env-desc">Динамика изменений compliance-регулирования, управление ростом транзакционной нагрузки, стресс-тесты кризисов доверия и мгновенной ликвидности.</div>
+                        </div>
+                        <div class="env-item" role="listitem">
+                            <div class="env-title">Платформы и e-commerce</div>
+                            <div class="env-desc">Поиск математического баланса интересов продавцов, конечных пользователей и операционной выгоды самой платформы.</div>
+                        </div>
+                        <div class="env-item" role="listitem">
+                            <div class="env-title">Разработка ПО</div>
+                            <div class="env-desc">Учёт технического долга, моделирование зависимости от ключевых специалистов и оценка выгорания команды с превентивными сигналами.</div>
+                        </div>
+                        <div class="env-item" role="listitem">
+                            <div class="env-title">Профессиональные услуги</div>
+                            <div class="env-desc">Анализ загрузки экспертизы, концентрации клиентских рисков, зависимости выручки от личных связей и угроз при уходе партнёра.</div>
+                        </div>
+                    </div>
+                    <div class="env-visual">
+                        <img src="illus-smart-city.webp"
+                             alt="Голографическая карта умного города — визуализация сред моделирования"
+                             loading="lazy" decoding="async">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ SHOCK ══ illus-crisis-network.webp иллюстрация, illus-data-network.webp фон -->
+        <section id="shock" class="shock-section" aria-labelledby="shock-h2">
+            <div class="shock-bg" role="presentation" aria-hidden="true"></div>
+            <div class="container">
+                <div class="shock-grid">
+                    <div class="shock-img">
+                        <img src="illus-crisis-network.webp"
+                             alt="Цифровая сеть в условиях кризиса — шоковый симулятор Methorics"
+                             loading="lazy" decoding="async"
+                             style="border-radius:18px;width:100%;aspect-ratio:4/3;object-fit:cover;">
+                    </div>
+                    <div class="shock-text">
+                        <span class="badge badge-red">Stress Testing</span>
+                        <h2 id="shock-h2" style="font-family:var(--font-display);font-size:clamp(22px,2.4vw,34px);margin-bottom:14px;color:#fff;font-weight:800;">Шоковые симуляторы</h2>
+                        <p style="color:var(--text-muted);font-size:15px;line-height:1.7;">Метрика прогоняет экстремальные сценарии до их фактического наступления — показывая не просто точку удара, а развёртывание каскадной цепной реакции по всей структуре.</p>
+                        <ul class="shock-list" aria-label="Типы шоковых сценариев">
+                            <li>Потеря ключевых сотрудников</li>
+                            <li>Кассовые разрывы</li>
+                            <li>Резкое падение спроса</li>
+                            <li>Внутренние конфликты</li>
+                            <li>Репутационные кризисы</li>
+                            <li>Регуляторные удары</li>
+                            <li>Разрушение коммуникации</li>
+                            <li>Агрессивное масштабирование</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ DASHBOARD ══ illus-system-risk.webp фон -->
+        <section id="dashboard" class="dashboard-section" aria-labelledby="dash-h2">
+            <div class="dash-bg" role="presentation" aria-hidden="true"></div>
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="dash-h2">3D-Дашборд компании</h2>
+                    <p>Состояние бизнеса в виде интерактивной трёхмерной лепестковой диаграммы — для мгновенного считывания системных перекосов.</p>
+                </div>
+                <div class="dashboard-container">
+                    <div class="dash-visual">
+                        <picture>
+                            <source id="dashSourceWebp" srcset="methorics_3d_radar_normal.webp" type="image/webp">
+                            <img id="dashImage"
+                                 src="methorics_3d_radar_normal.png"
+                                 alt="3D-диаграмма Methorics: штатный режим"
+                                 loading="lazy" decoding="async"
+                                 style="max-width:420px;margin:0 auto;width:100%;">
+                        </picture>
+                    </div>
+                    <div class="dash-controls" role="group" aria-label="Выбор режима дашборда">
+                        <button type="button" class="interactive-btn active" data-state="normal" aria-pressed="true">
+                            <h4>Штатный режим (Баланс)</h4>
+                            <p>Отображает общую устойчивость системы и качество взаимодействия со средой.</p>
+                        </button>
+                        <button type="button" class="interactive-btn" data-state="stress" aria-pressed="false">
+                            <h4>Агрессивное масштабирование</h4>
+                            <p>Визуализирует перекосы развития и критически перегруженные зоны компании.</p>
+                        </button>
+                        <button type="button" class="interactive-btn" data-state="crisis" aria-pressed="false">
+                            <h4>Регуляторный удар / Санкции</h4>
+                            <p>Подсвечивает скрытые управленческие проблемы и риски потери устойчивости.</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ FAQ ══ -->
+        <section id="faq" aria-labelledby="faq-h2">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="faq-h2">Часто задаваемые вопросы</h2>
+                    <p>Ответы на ключевые вопросы о платформе, интеграции и практическом применении.</p>
+                </div>
+                <div class="faq-list" role="list">
+                    <div class="faq-item" role="listitem">
+                        <button type="button" class="faq-q" aria-expanded="false">
+                            Для компаний какого размера подходит Methorics?
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="faq-body" hidden>
+                            <div class="faq-body-inner">Methorics оптимально работает для компаний от 20 до нескольких тысяч сотрудников. Ключевой критерий — наличие управленческой иерархии, множественных ролей и нетривиальных зависимостей между подразделениями. Стартапам на ранней стадии платформа также полезна для моделирования сценариев роста и выявления ключевых зависимостей уже на этапе построения команды.</div>
+                        </div>
+                    </div>
+                    <div class="faq-item" role="listitem">
+                        <button type="button" class="faq-q" aria-expanded="false">
+                            Какие данные нужны для запуска модели?
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="faq-body" hidden>
+                            <div class="faq-body-inner">Базовый запуск возможен на основе оргструктуры, описания ключевых процессов и агрегированных финансовых показателей. Для глубокого анализа ИИ-агенты могут подключаться к CRM, HRM, ERP и другим корпоративным системам. Платформа работает как с богатыми данными, так и с ограниченным набором — адаптируя точность модели к доступному объёму информации.</div>
+                        </div>
+                    </div>
+                    <div class="faq-item" role="listitem">
+                        <button type="button" class="faq-q" aria-expanded="false">
+                            Чем Methorics отличается от BI-систем и ERP?
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="faq-body" hidden>
+                            <div class="faq-body-inner">BI и ERP работают с данными прошлого: они фиксируют, что произошло, и визуализируют это. Methorics — форвардная система: она строит динамическую модель компании и симулирует, что произойдёт при тех или иных решениях или внешних воздействиях. Это принципиально иной класс инструмента — не дескриптивная аналитика, а предиктивное и нормативное моделирование.</div>
+                        </div>
+                    </div>
+                    <div class="faq-item" role="listitem">
+                        <button type="button" class="faq-q" aria-expanded="false">
+                            Как обеспечивается безопасность данных?
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="faq-body" hidden>
+                            <div class="faq-body-inner">Платформа развёрнута под юрисдикцией Эстонии (EU), что обеспечивает соответствие GDPR. Данные клиента изолированы в выделенном тенанте. Возможна on-premise установка для компаний с жёсткими требованиями к локализации данных. Все коммуникации шифруются, доступ ограничен по ролям.</div>
+                        </div>
+                    </div>
+                    <div class="faq-item" role="listitem">
+                        <button type="button" class="faq-q" aria-expanded="false">
+                            Сколько времени занимает внедрение?
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="faq-body" hidden>
+                            <div class="faq-body-inner">Первые результаты доступны в течение 48 часов после предоставления базового набора данных. Полное внедрение с интеграцией корпоративных систем и настройкой отраслевых пресетов занимает от двух до четырёх недель. Команда Methorics сопровождает весь процесс onboarding'а.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ CTA FINAL ══ illus-galaxy-network.webp -->
+        <section class="cta-section" aria-labelledby="cta-final-h2">
+            <div class="cta-bg" role="presentation" aria-hidden="true"></div>
+            <div class="container" style="padding-top:80px;padding-bottom:80px;">
+                <div class="badge badge-gold" style="margin:0 auto 20px;">Проверяйте решения заранее</div>
+                <h2 id="cta-final-h2">Готовы увидеть свою компанию системно?</h2>
+                <p>Запросите демо-доступ — и получите первый аналитический срез в течение 48 часов.</p>
+                <div class="cta-row" style="justify-content:center;">
+                    <a href="#contacts" class="btn btn-lg">Запросить демо-доступ</a>
+                    <a href="https://t.me/methorics" class="btn btn-secondary btn-lg" target="_blank" rel="noopener">✈ Написать в Telegram</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ══ FOOTER ══ illus-digital-landscape.webp тонкий фон -->
+    <footer id="contacts">
+        <div class="footer-bg" role="presentation" aria-hidden="true"></div>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <picture class="footer-logo">
+                        <source srcset="methorics_logo_text.webp" type="image/webp">
+                        <img src="methorics_logo_text.png" alt="Methorics" loading="lazy" decoding="async">
+                    </picture>
+                    <p style="max-width:300px;font-size:14px;line-height:1.6;color:var(--text-muted);">Проверяйте решения до того, как они становятся последствиями.</p>
+                </div>
+                <div>
+                    <p class="footer-h">Связь с нами</p>
+                    <a href="https://t.me/methorics" class="contact-link">✈ Telegram: @methorics</a>
+                    <a href="https://wa.me/37258477088" class="contact-link">💬 WhatsApp: +372 5847 7088</a>
+                    <a href="mailto:info@methorics.com" class="contact-link">✉ Email: info@methorics.com</a>
+                </div>
+                <div>
+                    <p class="footer-h">Локация</p>
+                    <p style="color:var(--text-muted);margin-bottom:10px;font-size:14px;">Юрисдикция: Эстония (EU)</p>
+                    <a href="https://methorics.com" class="contact-link" style="color:var(--accent-blue);">methorics.com</a>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 Methorics. Все права защищены.</div>
+        </div>
+    </footer>
+
+    <script>
+        /* ── Mobile menu ── */
+        const menuToggle = document.getElementById('menuToggle');
+        const siteNav    = document.getElementById('site-navigation');
+        function setMenu(open) {
+            menuToggle.setAttribute('aria-expanded', String(open));
+            menuToggle.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+            siteNav.classList.toggle('open', open);
+        }
+        menuToggle.addEventListener('click', () => setMenu(menuToggle.getAttribute('aria-expanded') !== 'true'));
+        siteNav.querySelectorAll('a').forEach(l => l.addEventListener('click', () => setMenu(false)));
+        document.addEventListener('click', e => { if (!siteNav.contains(e.target) && !menuToggle.contains(e.target)) setMenu(false); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+        /* ── Dashboard switcher ── */
+        const dashImage      = document.getElementById('dashImage');
+        const dashSourceWebp = document.getElementById('dashSourceWebp');
+        const IMG_MAP = {
+            normal: { png: 'methorics_3d_radar_normal.png', webp: 'methorics_3d_radar_normal.webp', alt: '3D-диаграмма Methorics: штатный режим' },
+            stress: { png: 'methorics_3d_radar_stress.png', webp: 'methorics_3d_radar_stress.webp', alt: '3D-диаграмма Methorics: агрессивное масштабирование' },
+            crisis: { png: 'methorics_3d_radar_crisis.png', webp: 'methorics_3d_radar_crisis.webp', alt: '3D-диаграмма Methorics: регуляторный удар' },
+        };
+        document.querySelectorAll('.interactive-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const map = IMG_MAP[btn.dataset.state];
+                if (!map) return;
+                document.querySelectorAll('.interactive-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed','true');
+                if (dashSourceWebp) dashSourceWebp.srcset = map.webp;
+                dashImage.src = map.png;
+                dashImage.alt = map.alt;
+            });
+        });
+
+        /* ── Image fallback ── */
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('error', function() {
+                const s = img.src;
+                if (s.endsWith('.webp')) img.src = s.replace('.webp','.png');
+                else if (s.endsWith('.png')) img.src = s.replace('.png','.jpg');
+            }, { once: true });
+        });
+
+        /* ── FAQ accordion ── */
+        document.querySelectorAll('.faq-q').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.faq-item');
+                const body = item.querySelector('.faq-body');
+                const open = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => {
+                    i.classList.remove('open');
+                    i.querySelector('.faq-q').setAttribute('aria-expanded','false');
+                    i.querySelector('.faq-body').setAttribute('hidden','');
+                });
+                if (!open) {
+                    item.classList.add('open');
+                    btn.setAttribute('aria-expanded','true');
+                    body.removeAttribute('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
