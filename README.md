@@ -1,5 +1,5 @@
 # new_landing
-ChatGPT
+ChatGPT/Clode/Gemini
 
 Пакет лендинга "Меторика"
 
