@@ -4,42 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Methorics — Система моделирования бизнеса и управленческой динамики</title>
+    <meta name="description" content="Methorics — система моделирования бизнеса, шоковых сценариев и управленческой динамики.">
     <style>
         :root {
             --bg-dark: #070b12;
             --bg-card: #0d1527;
             --accent-blue: #00d2ff;
-            --accent-blue-glow: rgba(0, 210, 255, 0.2);
             --accent-blue-deep: #0066ff;
             --accent-red: #ff2a5f;
-            --accent-red-glow: rgba(255, 42, 95, 0.2);
             --text-main: #e2e8f0;
             --text-muted: #8a99ad;
-            --border-color: rgba(255, 255, 255, 0.06);
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --header-bg: rgba(7, 11, 18, 0.88);
+            --shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+            --font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         html { scroll-behavior: smooth; }
-
         body {
             font-family: var(--font-family);
-            background-color: var(--bg-dark);
+            background:
+                radial-gradient(circle at 10% 20%, rgba(0, 114, 255, 0.06) 0%, transparent 35%),
+                radial-gradient(circle at 90% 80%, rgba(255, 42, 95, 0.04) 0%, transparent 35%),
+                var(--bg-dark);
             color: var(--text-main);
             line-height: 1.6;
             overflow-x: hidden;
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(0, 114, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 42, 95, 0.03) 0%, transparent 40%);
-            background-attachment: fixed;
         }
 
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
+        a { color: inherit; }
+        img { display: block; max-width: 100%; height: auto; }
 
         .container {
             width: 100%;
@@ -48,252 +43,307 @@
             padding: 0 20px;
         }
 
+        .skip-link {
+            position: absolute;
+            left: -999px;
+            top: 12px;
+            background: #fff;
+            color: #000;
+            padding: 10px 14px;
+            border-radius: 8px;
+            z-index: 9999;
+        }
+        .skip-link:focus { left: 12px; }
+
         header {
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
-            background: rgba(7, 11, 18, 0.85);
+            z-index: 200;
+            background: var(--header-bg);
             backdrop-filter: blur(12px);
-            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        header .container {
+        .header-inner {
+            min-height: 72px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             gap: 16px;
         }
 
-        .logo-block {
-            display: flex;
+        .brand {
+            display: inline-flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            flex-shrink: 0;
             min-width: 0;
         }
 
-        .logo-icon {
+        .brand-logo {
             width: 38px;
             height: 38px;
-            min-width: 38px;
-            min-height: 38px;
+            flex: 0 0 38px;
             object-fit: contain;
-            display: block;
-            flex-shrink: 0;
         }
 
-        .logo-text {
+        .brand-name {
             font-size: 22px;
             font-weight: 800;
-            letter-spacing: 0.5px;
-            color: #ffffff;
+            color: #fff;
             white-space: nowrap;
+            letter-spacing: 0.2px;
         }
 
-        nav { display: flex; gap: 24px; }
-        nav a {
-            color: var(--text-muted);
+        .menu-toggle {
+            display: none;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        .menu-toggle svg { width: 22px; height: 22px; }
+        .menu-toggle .close-icon { display: none; }
+        .menu-toggle[aria-expanded="true"] .menu-icon { display: none; }
+        .menu-toggle[aria-expanded="true"] .close-icon { display: block; }
+
+        nav.site-nav { display: flex; align-items: center; gap: 22px; }
+        .site-nav a {
             text-decoration: none;
+            color: var(--text-muted);
             font-size: 14px;
             font-weight: 500;
-            transition: color 0.3s;
+            transition: color .2s ease;
         }
-        nav a:hover { color: var(--accent-blue); }
+        .site-nav a:hover,
+        .site-nav a:focus-visible { color: var(--accent-blue); }
 
-        .hero { padding: 40px 0 60px; }
-        .grid-2 { display: flex; flex-direction: column; gap: 40px; }
-
+        .hero { padding: 42px 0 64px; }
+        .grid-2 {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
         @media (min-width: 992px) {
-            .grid-2 { flex-direction: row; align-items: center; }
-            .hero-text-cell { width: 55%; padding-right: 40px; }
+            .grid-2 { flex-direction: row; align-items: center; gap: 40px; }
+            .hero-text-cell { width: 55%; }
             .hero-image-cell { width: 45%; }
         }
 
         .badge {
-            display: inline-block;
+            display: inline-flex;
             padding: 6px 14px;
             background: rgba(0, 210, 255, 0.08);
-            border: 1px solid rgba(0, 210, 255, 0.2);
+            border: 1px solid rgba(0, 210, 255, 0.22);
             color: var(--accent-blue);
-            border-radius: 100px;
+            border-radius: 999px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
+            letter-spacing: .5px;
+            margin-bottom: 18px;
         }
 
         h1 {
-            font-size: 42px;
+            font-size: clamp(28px, 4vw, 46px);
             font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 20px;
+            line-height: 1.15;
+            margin-bottom: 18px;
             background: linear-gradient(180deg, #ffffff 0%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .hero p { font-size: 16px; color: var(--text-muted); margin-bottom: 32px; }
-
-        .btn {
-            display: inline-block;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, var(--accent-blue-deep) 0%, #00a2ff 100%);
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
+        .hero p,
+        .section-header p,
+        .card p,
+        .env-desc,
+        .panel-text {
+            color: var(--text-muted);
             font-size: 15px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 102, 255, 0.3);
-            border: none;
-            cursor: pointer;
-            text-align: center;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0, 210, 255, 0.4); }
 
-        .responsive-img { border-radius: 12px; margin: 0 auto; }
+        .hero p { margin-bottom: 28px; max-width: 60ch; }
+
+        .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 22px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-blue-deep), #00a2ff);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 102, 255, 0.25);
+            transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0, 210, 255, 0.28); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+        }
+
+        .img-shell {
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.02);
+            box-shadow: var(--shadow);
+        }
+
+        .responsive-img { width: 100%; height: auto; object-fit: contain; }
         .glow-blue { box-shadow: 0 0 30px rgba(0, 210, 255, 0.12); }
         .glow-red { box-shadow: 0 0 30px rgba(255, 42, 95, 0.12); }
 
-        section { padding: 60px 0; border-top: 1px solid var(--border-color); }
-        .section-header { text-align: center; max-width: 700px; margin: 0 auto 48px; }
-        .section-header h2 { font-size: 28px; font-weight: 800; margin-bottom: 14px; color: #fff; }
-        .section-header p { color: var(--text-muted); font-size: 15px; }
+        section { padding: 64px 0; border-top: 1px solid var(--border-color); }
 
-        .cards-grid { display: flex; flex-direction: column; gap: 20px; }
+        .section-header {
+            text-align: center;
+            max-width: 760px;
+            margin: 0 auto 40px;
+        }
+        .section-header h2 {
+            font-size: clamp(24px, 2.5vw, 32px);
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
         @media (min-width: 768px) {
-            .cards-grid { flex-direction: row; }
-            .col-3 { flex: 1; }
+            .cards-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 28px;
-            height: 100%;
-            transition: all 0.3s;
+            border-radius: 14px;
+            padding: 24px;
+            transition: transform .2s ease, border-color .2s ease;
         }
-        .card:hover { border-color: rgba(0, 210, 255, 0.2); transform: translateY(-4px); }
-        .card h3 { font-size: 18px; margin-bottom: 12px; color: #fff; font-weight: 700; }
-        .card p { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+        .card:hover { transform: translateY(-3px); border-color: rgba(0, 210, 255, 0.22); }
+        .card h3 { font-size: 18px; margin-bottom: 10px; color: #fff; }
 
-        .env-list { display: flex; flex-direction: column; margin-top: 20px; }
+        .env-list { margin-top: 18px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; }
         .env-item {
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border-color);
+            display: grid;
             gap: 8px;
+            padding: 18px 20px;
+            border-top: 1px solid var(--border-color);
         }
+        .env-item:first-child { border-top: none; }
         @media (min-width: 768px) {
-            .env-item { flex-direction: row; align-items: flex-start; padding: 20px; }
-            .env-title { width: 30%; flex-shrink: 0; padding-right: 20px; }
-            .env-desc { width: 70%; }
+            .env-item { grid-template-columns: 280px 1fr; align-items: start; }
         }
-        .env-item:last-child { border-bottom: none; }
-        .env-title { font-weight: 700; color: var(--accent-blue); font-size: 16px; }
-        .env-desc { color: var(--text-main); font-size: 14px; }
+        .env-title { font-weight: 800; color: var(--accent-blue); }
 
-        .shock-section { background: radial-gradient(circle at 50% 50%, rgba(255, 42, 95, 0.02) 0%, transparent 70%); }
-        .shock-grid { display: flex; flex-direction: column-reverse; gap: 40px; }
+        .shock-section {
+            background: radial-gradient(circle at 50% 50%, rgba(255, 42, 95, 0.03) 0%, transparent 70%);
+        }
+        .shock-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+        }
         @media (min-width: 992px) {
-            .shock-grid { flex-direction: row; align-items: center; }
-            .shock-img { width: 50%; }
-            .shock-text { width: 50%; padding-left: 40px; }
+            .shock-grid { grid-template-columns: 1fr 1fr; align-items: center; }
         }
 
         .shock-list {
+            list-style: none;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
-            margin-top: 20px;
-            list-style: none;
+            gap: 10px;
+            margin-top: 18px;
         }
-        @media (min-width: 480px) { .shock-list { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 480px) {
+            .shock-list { grid-template-columns: 1fr 1fr; }
+        }
         .shock-list li {
             position: relative;
-            padding-left: 24px;
-            font-size: 14px;
+            padding-left: 22px;
             color: var(--text-main);
+            font-size: 14px;
         }
         .shock-list li::before {
             content: "✕";
             position: absolute;
             left: 0;
+            top: 0;
             color: var(--accent-red);
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .dashboard-container {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 24px;
-            gap: 32px;
         }
         @media (min-width: 992px) {
-            .dashboard-container { flex-direction: row; align-items: center; padding: 40px; }
-            .dash-visual { width: 50%; }
-            .dash-controls { width: 50%; padding-left: 40px; }
+            .dashboard-container { grid-template-columns: 1fr 1fr; align-items: center; padding: 36px; }
         }
 
-        .dash-visual img {
-            max-width: 280px;
-            width: 100%;
-            height: auto;
-            margin: 0 auto;
-        }
-        @media (min-width: 768px) { .dash-visual img { max-width: 360px; } }
+        .dash-visual img { max-width: 390px; margin: 0 auto; }
 
         .interactive-btn {
-            display: block;
             width: 100%;
-            background: rgba(255,255,255,0.01);
+            display: block;
+            text-align: left;
+            background: rgba(255,255,255,0.02);
             border: 1px solid var(--border-color);
             padding: 16px;
-            border-radius: 8px;
-            text-align: left;
+            border-radius: 10px;
             color: var(--text-main);
-            margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background .2s ease, border-color .2s ease, transform .2s ease;
+            margin-bottom: 12px;
         }
         .interactive-btn:hover,
         .interactive-btn.active {
             background: rgba(0, 210, 255, 0.06);
-            border-color: var(--accent-blue);
+            border-color: rgba(0, 210, 255, 0.3);
+            transform: translateY(-1px);
         }
-        .interactive-btn h4 { font-size: 15px; margin-bottom: 4px; font-weight: 700; color: #fff; }
-        .interactive-btn p { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+        .interactive-btn h4 { color: #fff; font-size: 15px; margin-bottom: 4px; }
 
         footer {
             background: #04070c;
-            padding: 50px 0 30px;
             border-top: 1px solid var(--border-color);
-            font-size: 14px;
-            color: var(--text-muted);
+            padding: 50px 0 28px;
         }
-        .footer-grid { display: flex; flex-direction: column; gap: 40px; }
-
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+        }
         @media (min-width: 768px) {
-            .footer-grid { flex-direction: row; justify-content: space-between; }
-            .footer-col-1 { width: 40%; }
-            .footer-col-2 { width: 35%; }
-            .footer-col-3 { width: 25%; }
+            .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
         }
 
-        .footer-logo-img {
+        .footer-logo {
             max-width: 180px;
-            height: auto;
-            display: block;
-            margin-bottom: 16px;
-            object-fit: contain;
+            margin-bottom: 14px;
         }
 
         .contact-link {
@@ -301,194 +351,279 @@
             color: var(--text-main);
             text-decoration: none;
             margin-bottom: 10px;
-            transition: color 0.3s;
         }
         .contact-link:hover { color: var(--accent-blue); }
 
         .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 40px;
-            padding-top: 20px;
+            margin-top: 36px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.06);
             text-align: center;
-            font-size: 12px;
             color: var(--text-muted);
+            font-size: 12px;
         }
 
-        @media (max-width: 768px) {
-            nav { display: none; }
-            h1 { font-size: 28px; text-align: center; }
-            .hero p { text-align: center; }
-            .badge-wrapper { text-align: center; }
+        @media (max-width: 991px) {
+            .menu-toggle { display: inline-flex; }
+
+            nav.site-nav {
+                position: fixed;
+                inset: 73px 0 auto 0;
+                display: grid;
+                gap: 0;
+                padding: 10px 20px 16px;
+                background: rgba(7, 11, 18, 0.98);
+                border-bottom: 1px solid var(--border-color);
+                transform: translateY(-120%);
+                opacity: 0;
+                pointer-events: none;
+                transition: transform .22s ease, opacity .22s ease;
+            }
+
+            nav.site-nav.open {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .site-nav a {
+                display: block;
+                padding: 14px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+
+            .site-nav a:last-child { border-bottom: none; }
+            .brand-name { font-size: 20px; }
         }
 
         @media (max-width: 480px) {
-            .btn { display: block; width: 100%; }
+            .header-inner { min-height: 66px; }
+            .brand-logo { width: 34px; height: 34px; flex-basis: 34px; }
+            .brand-name { font-size: 18px; }
+            .hero { padding-top: 32px; }
+            .btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { transition: none !important; animation: none !important; }
         }
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
 
     <header>
-        <div class="container">
-            <a href="#" class="logo-block" aria-label="Methorics">
-                <img src="methorics_logo_icon.webp" alt="Methorics Лого"
-                     class="logo-icon"
-                     loading="eager"
-                     onerror="this.onerror=null;this.src='methorics_logo_text.webp';">
-                <span class="logo-text">Methorics</span>
+        <div class="container header-inner">
+            <a href="#" class="brand" aria-label="Methorics">
+                <picture>
+                    <source srcset="methorics_logo_icon.webp" type="image/webp">
+                    <img
+                        src="methorics_logo_icon.png"
+                        alt="Methorics"
+                        class="brand-logo"
+                        width="38"
+                        height="38"
+                        loading="eager"
+                        decoding="async"
+                        onerror="this.onerror=null;this.src='methorics_logo_text.webp';"
+                    >
+                </picture>
+                <span class="brand-name">Methorics</span>
             </a>
-            <nav>
+
+            <button
+                type="button"
+                class="menu-toggle"
+                aria-label="Открыть меню"
+                aria-controls="site-navigation"
+                aria-expanded="false"
+                id="menuToggle"
+            >
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg class="close-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <nav class="site-nav" id="site-navigation">
                 <a href="#about">О платформе</a>
                 <a href="#environments">Среды</a>
                 <a href="#shock">Шоковые тесты</a>
                 <a href="#dashboard">3D-Дашборд</a>
+                <a href="#contacts">Контакты</a>
             </nav>
         </div>
     </header>
 
-    <section class="hero" id="about">
-        <div class="container">
-            <div class="grid-2">
-                <div class="hero-text-cell">
-                    <div class="badge-wrapper"><span class="badge">Математическое моделирование</span></div>
-                    <h1>Не просто BI или отчёты. Инструмент системного понимания бизнеса.</h1>
-                    <p>Большинство аналитических систем показывают цифры прошлого. Меторика моделирует компанию как живую среду — подсвечивая скрытые перегрузки, конфликты, потери устойчивости и точки роста до принятия решений.</p>
-                    <div class="badge-wrapper"><a href="#contacts" class="btn">Запросить демо-доступ</a></div>
-                </div>
-                <div class="hero-image-cell">
-                    <img src="methorics_network_graph.webp" alt="Графовая модель Methorics" class="responsive-img glow-blue" loading="lazy">
-                </div>
-            </div>
-        </div>
-    </section>
+    <main id="main">
+        <section class="hero" id="about">
+            <div class="container">
+                <div class="grid-2">
+                    <div class="hero-text-cell">
+                        <div class="badge">Математическое моделирование</div>
+                        <h1>Не просто BI или отчёты. Инструмент системного понимания бизнеса.</h1>
+                        <p>Большинство аналитических систем показывают цифры прошлого. Меторика моделирует компанию как живую среду — подсвечивая скрытые перегрузки, конфликты, потери устойчивости и точки роста до принятия решений.</p>
+                        <div class="cta-row">
+                            <a href="#contacts" class="btn">Запросить демо-доступ</a>
+                            <a href="#dashboard" class="btn btn-secondary">Смотреть дашборд</a>
+                        </div>
+                    </div>
 
-    <section>
-        <div class="container">
-            <div class="section-header">
-                <h2>Интеллектуальное ядро платформы</h2>
-                <p>Уникальная математическая модель, в которой организация описывается через сквозное взаимодействие внутренней системы и сложной внешней среды.</p>
+                    <div class="hero-image-cell">
+                        <picture class="img-shell">
+                            <source srcset="methorics_network_graph.webp" type="image/webp">
+                            <img
+                                src="methorics_network_graph.png"
+                                alt="Графовая модель Methorics"
+                                class="responsive-img glow-blue"
+                                loading="eager"
+                                decoding="async"
+                            >
+                        </picture>
+                    </div>
+                </div>
             </div>
-            <div class="cards-grid">
-                <div class="col-3">
-                    <div class="card">
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <h2>Интеллектуальное ядро платформы</h2>
+                    <p>Уникальная математическая модель, в которой организация описывается через сквозное взаимодействие внутренней системы и сложной внешней среды.</p>
+                </div>
+                <div class="cards-grid">
+                    <article class="card">
                         <h3>Графовое моделирование</h3>
                         <p>Команда, управление, рынок, мотивация и внешние изменения анализируются как единая динамическая структура, моделируя сценарии развития.</p>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card">
+                    </article>
+                    <article class="card">
                         <h3>ИИ-Агенты</h3>
                         <p>Автоматически собирают и структурируют данные, выявляя слабые сигналы, внутренние дисбалансы компании и скрытые системные риски.</p>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card">
+                    </article>
+                    <article class="card">
                         <h3>Язык ролей</h3>
                         <p>Система мгновенно переводит и адаптирует одну и ту же управленческую ситуацию на понятный язык собственника, CFO, HR, COO или инвестора.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="environments">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Примеры сред моделирования</h2>
+                    <p>Готовые пресеты динамических моделей, настроенные под специфические вызовы различных отраслей.</p>
+                </div>
+                <div class="env-list">
+                    <div class="env-item"><div class="env-title">Правообладатель в сфере IP</div><div class="env-desc">Моделирование конфликтов лицензий, защиты интеллектуальной собственности, давления конкурентов и рисков потери контроля над разработками.</div></div>
+                    <div class="env-item"><div class="env-title">Производитель (Промышленность)</div><div class="env-desc">Анализ перегрузки производства, каскадных сбоев, роста брака и критического дефицита поставок сырья.</div></div>
+                    <div class="env-item"><div class="env-title">Fintech-компании</div><div class="env-desc">Динамика изменений compliance-регулирования, управление ростом транзакционной нагрузки, стресс-тесты кризисов доверия и мгновенной ликвидности.</div></div>
+                    <div class="env-item"><div class="env-title">Платформы и e-commerce</div><div class="env-desc">Поиск математического баланса интересов продавцов, конечных пользователей и операционной выгоды самой платформы.</div></div>
+                    <div class="env-item"><div class="env-title">Разработка ПО</div><div class="env-desc">Учет технического долга, моделирование зависимости от ключевых специалистов и оценка выгорания команды.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="shock" class="shock-section">
+            <div class="container">
+                <div class="shock-grid">
+                    <div class="shock-img">
+                        <picture class="img-shell">
+                            <source srcset="methorics_shock_simulator.webp" type="image/webp">
+                            <img
+                                src="methorics_shock_simulator.png"
+                                alt="Шоковый симулятор Methorics"
+                                class="responsive-img glow-red"
+                                loading="lazy"
+                                decoding="async"
+                            >
+                        </picture>
+                    </div>
+                    <div class="shock-text">
+                        <span class="badge" style="background:rgba(255,42,95,0.08); border-color:rgba(255,42,95,0.2); color:var(--accent-red);">Stress Testing</span>
+                        <h2 style="font-size: clamp(24px, 2.5vw, 32px); margin-bottom: 12px; color:#fff;">Шоковые симуляторы</h2>
+                        <p class="panel-text">Меторика прогоняет экстремальные сценарии до их фактического наступления, демонстрируя не просто точку удара, а развертывание каскадной цепной реакции по всей структуре.</p>
+                        <ul class="shock-list">
+                            <li>Потеря ключевых сотрудников</li>
+                            <li>Кассовые разрывы</li>
+                            <li>Резкое падение спроса</li>
+                            <li>Внутренние конфликты</li>
+                            <li>Репутационные кризисы</li>
+                            <li>Регуляторные удары</li>
+                            <li>Разрушение коммуникации</li>
+                            <li>Агрессивное масштабирование</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="environments">
-        <div class="container">
-            <div class="section-header">
-                <h2>Примеры сред моделирования</h2>
-                <p>Готовые пресеты динамических моделей, настроенные под специфические вызовы различных отраслей.</p>
-            </div>
-            <div class="env-list">
-                <div class="env-item">
-                    <div class="env-title">Правообладатель в сфере IP</div>
-                    <div class="env-desc">Моделирование конфликтов лицензий, защиты интеллектуальной собственности, давления конкурентов и рисков потери контроля над разработками.</div>
+        <section id="dashboard">
+            <div class="container">
+                <div class="section-header">
+                    <h2>3D-Дашборд компании</h2>
+                    <p>Визуализация состояния бизнеса в виде интерактивной трехмерной лепестковой диаграммы для мгновенного считывания системных перекосов.</p>
                 </div>
-                <div class="env-item">
-                    <div class="env-title">Производитель (Промышленность)</div>
-                    <div class="env-desc">Анализ перегрузки производства, каскадных сбоев, роста брака и критического дефицита поставок сырья.</div>
-                </div>
-                <div class="env-item">
-                    <div class="env-title">Fintech-компании</div>
-                    <div class="env-desc">Динамика изменений compliance-регулирования, управление ростом транзакционной нагрузки, стресс-тесты кризисов доверия и мгновенной ликвидности.</div>
-                </div>
-                <div class="env-item">
-                    <div class="env-title">Платформы и e-commerce</div>
-                    <div class="env-desc">Поиск математического баланса интересов продавцов (мерчантов), конечных пользователей и операционной выгоды самой платформы.</div>
-                </div>
-                <div class="env-item">
-                    <div class="env-title">Разработка ПО</div>
-                    <div class="env-desc">Учет технического долга, моделирование жесткой зависимости от ключевых специалистов и оценка выгорания/перегрева команды.</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <section id="shock" class="shock-section">
-        <div class="container">
-            <div class="shock-grid">
-                <div class="shock-img">
-                    <img src="methorics_shock_simulator.webp" alt="Шоковый симулятор Methorics" class="responsive-img glow-red" loading="lazy">
-                </div>
-                <div class="shock-text">
-                    <span class="badge" style="background:rgba(255,42,95,0.08); border-color:rgba(255,42,95,0.2); color:var(--accent-red);">Stress Testing</span>
-                    <h2>Шоковые симуляторы</h2>
-                    <p>Меторика прогоняет экстремальные сценарии до их фактического наступления, демонстрируя не просто точку удара, а развертывание каскадной цепной реакции по всей структуре.</p>
-                    <ul class="shock-list">
-                        <li>Потеря ключевых сотрудников</li>
-                        <li>Кассовые разрывы</li>
-                        <li>Резкое падение спроса</li>
-                        <li>Внутренние конфликты</li>
-                        <li>Репутационные кризисы</li>
-                        <li>Регуляторные удары</li>
-                        <li>Разрушение коммуникации</li>
-                        <li>Агрессивное масштабирование</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
+                <div class="dashboard-container">
+                    <div class="dash-visual">
+                        <picture class="img-shell">
+                            <source srcset="methorics_3d_radar_normal.webp" type="image/webp">
+                            <img
+                                id="dashImage"
+                                src="methorics_3d_radar_normal.png"
+                                alt="3D Диаграмма Methorics"
+                                class="responsive-img"
+                                loading="lazy"
+                                decoding="async"
+                            >
+                        </picture>
+                    </div>
 
-    <section id="dashboard">
-        <div class="container">
-            <div class="section-header">
-                <h2>3D-Дашборд компании</h2>
-                <p>Визуализация состояния бизнеса в виде интерактивной трехмерной лепестковой диаграммы для мгновенного считывания системных перекосов.</p>
-            </div>
-            <div class="dashboard-container">
-                <div class="dash-visual">
-                    <img id="dashImage" src="methorics_3d_radar_normal.webp" alt="3D Диаграмма" class="responsive-img" loading="lazy">
-                </div>
-                <div class="dash-controls">
-                    <button type="button" class="interactive-btn active" onclick="switchDash('normal', this)">
-                        <h4>Штатный режим (Баланс)</h4>
-                        <p>Отображает общую устойчивость системы и качество взаимодействия со средой.</p>
-                    </button>
-                    <button type="button" class="interactive-btn" onclick="switchDash('stress', this)">
-                        <h4>Агрессивное масштабирование</h4>
-                        <p>Визуализирует перекосы развития и критически перегруженные зоны компании.</p>
-                    </button>
-                    <button type="button" class="interactive-btn" onclick="switchDash('crisis', this)">
-                        <h4>Регуляторный удар / Санкции</h4>
-                        <p>Подсвечивает скрытые управленческие проблемы и риски потери устойчивости.</p>
-                    </button>
+                    <div class="dash-controls">
+                        <button type="button" class="interactive-btn active" data-state="normal">
+                            <h4>Штатный режим (Баланс)</h4>
+                            <p>Отображает общую устойчивость системы и качество взаимодействия со средой.</p>
+                        </button>
+                        <button type="button" class="interactive-btn" data-state="stress">
+                            <h4>Агрессивное масштабирование</h4>
+                            <p>Визуализирует перекосы развития и критически перегруженные зоны компании.</p>
+                        </button>
+                        <button type="button" class="interactive-btn" data-state="crisis">
+                            <h4>Регуляторный удар / Санкции</h4>
+                            <p>Подсвечивает скрытые управленческие проблемы и риски потери устойчивости.</p>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <footer id="contacts">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col-1">
-                    <img src="methorics_logo_text.webp" alt="Methorics Лого" class="footer-logo-img" loading="lazy">
-                    <p style="max-width: 300px; font-size: 14px; line-height: 1.5;">Проверяйте решения до того, как они становятся последствиями.</p>
+                <div>
+                    <picture class="footer-logo">
+                        <source srcset="methorics_logo_text.webp" type="image/webp">
+                        <img
+                            src="methorics_logo_text.png"
+                            alt="Methorics"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </picture>
+                    <p style="max-width: 320px; font-size: 14px; line-height: 1.5;">Проверяйте решения до того, как они становятся последствиями.</p>
                 </div>
-                <div class="footer-col-2">
+                <div>
                     <h4 style="color:#fff; margin-bottom: 16px; font-weight: 700;">Связь с нами</h4>
                     <a href="https://t.me/methorics" class="contact-link">✈ Telegram: @methorics</a>
                     <a href="https://wa.me/37258477088" class="contact-link">💬 WhatsApp: +372 5847 7088</a>
                     <a href="mailto:info@methorics.com" class="contact-link">✉ Email: info@methorics.com</a>
                 </div>
-                <div class="footer-col-3">
+                <div>
                     <h4 style="color:#fff; margin-bottom: 16px; font-weight: 700;">Локация</h4>
                     <p style="color: var(--text-main); margin-bottom: 10px;">Юрисдикция: Эстония</p>
                     <a href="https://methorics.com" class="contact-link" style="color: var(--accent-blue);">www.methorics.com</a>
@@ -501,12 +636,59 @@
     </footer>
 
     <script>
-        function switchDash(state, element) {
-            document.querySelectorAll('.interactive-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            const img = document.getElementById('dashImage');
-            img.src = `methorics_3d_radar_${state}.webp`;
+        const menuToggle = document.getElementById('menuToggle');
+        const siteNav = document.getElementById('site-navigation');
+        const navLinks = siteNav.querySelectorAll('a');
+        const dashImage = document.getElementById('dashImage');
+
+        function getFallbackPath(currentSrc) {
+            if (currentSrc.includes('.webp')) return currentSrc.replace('.webp', '.png');
+            if (currentSrc.includes('.png')) return currentSrc.replace('.png', '.jpg');
+            return currentSrc;
         }
+
+        function attachFallbacks() {
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('error', () => {
+                    const next = getFallbackPath(img.src);
+                    if (next !== img.src) img.src = next;
+                }, { once: true });
+            });
+        }
+
+        function setMenu(open) {
+            menuToggle.setAttribute('aria-expanded', String(open));
+            menuToggle.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+            siteNav.classList.toggle('open', open);
+        }
+
+        menuToggle.addEventListener('click', () => {
+            const open = menuToggle.getAttribute('aria-expanded') !== 'true';
+            setMenu(open);
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => setMenu(false));
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!siteNav.contains(e.target) && !menuToggle.contains(e.target)) setMenu(false);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') setMenu(false);
+        });
+
+        document.querySelectorAll('.interactive-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.interactive-btn').forEach(x => x.classList.remove('active'));
+                btn.classList.add('active');
+                const state = btn.dataset.state;
+                dashImage.src = `methorics_3d_radar_${state}.webp`;
+            });
+        });
+
+        attachFallbacks();
     </script>
 </body>
 </html>
