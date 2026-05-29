@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP-Agents Control Panel</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 260px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-content: space-between;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content Area */
+        main {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, #1e1b4b, var(--bg-primary));
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Grid System & Cards */
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+
+        /* Orchestration Pipeline Graph */
+        .pipeline-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Badges & Statuses */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .badge-success { background-color: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .badge-warning { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-danger { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-info { background-color: rgba(56, 189, 248, 0.2); color: var(--accent); }
+
+        /* Forms & Config */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            background-color: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+            margin-left: 0.5rem;
+        }
+        .btn-secondary:hover { background-color: var(--border); }
+
+        /* JSON live preview output */
+        pre {
+            background-color: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #a7f3d0;
+            border: 1px solid var(--border);
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div>
+            <div class="brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                IP-Agent System
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="switchView('dashboard')">Панель управления</li>
+                <li class="nav-item" onclick="switchView('agents')">Управление агентами</li>
+                <li class="nav-item" onclick="switchView('alerts')">Алерты и Отчеты</li>
+                <li class="nav-item" onclick="switchView('config')">Глобальные настройки</li>
+            </ul>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+            AIClient Engine: DeepSeek-V4-Pro
+        </div>
+    </aside>
+
+    <main>
+        <section id="dashboard" class="view-section active">
+            <div class="header">
+                <h2>Сводный Дашборд Эффективности</h2>
+                <span class="badge badge-success">Система онлайн</span>
+            </div>
+
+            <div class="grid-4">
+                <div class="card">
+                    <div class="card-title">Общий Precision</div>
+                    <div class="card-value" style="color: var(--success)">94.2%</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Доля истинных инцидентов</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Общий Recall</div>
+                    <div class="card-value" style="color: var(--accent)">89.1%</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Покрытие патентной базы</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Средняя задержка (Latency)</div>
+                    <div class="card-value" style="color: var(--warning)">14.2 мин</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">От публикации до алерта</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Защищено IP (Outcome Ratio)</div>
+                    <div class="card-value">34 / 41</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Успешные действия / алерты</div>
+                </div>
+            </div>
+
+            <h3>Карта оркестрации пайплайна (LangGraph)</h3>
+            <div class="pipeline-container">
+                <svg viewBox="0 0 900 160" width="100%" height="100%" style="background-color: var(--bg-primary); border-radius: 4px;">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569" />
+                        </marker>
+                    </defs>
+
+                    <rect x="20" y="40" width="150" height="60" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="95" y="70" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">PatentRadar</text>
+                    <text x="95" y="88" fill="#94a3b8" font-size="10" text-anchor="middle">Каждые 6 часов</text>
+
+                    <path d="M 170 70 L 220 70" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+                    <rect x="230" y="40" width="160" height="60" rx="6" fill="#1e293b" stroke="#a855f7" stroke-width="1"/>
+                    <text x="310" y="70" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">CompetitiveGhost</text>
+                    <text x="310" y="88" fill="#94a3b8" font-size="10" text-anchor="middle">Каждые 12 часов</text>
+
+                    <path d="M 390 70 L 440 70" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+                    <rect x="450" y="40" width="150" height="60" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                    <text x="525" y="70" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">IPGuardian</text>
+                    <text x="525" y="88" fill="#f8fafc" font-size="10" fill="var(--danger)" text-anchor="middle" font-weight="bold">При алерте</text>
+
+                    <path d="M 525 100 L 525 125 L 700 125" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+                    <path d="M 310 40 L 310 15 L 720 15 L 720 40" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="2"/>
+                    <rect x="650" y="40" width="150" height="60" rx="6" fill="#1e293b" stroke="#eab308" stroke-width="1"/>
+                    <text x="725" y="70" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">Trend Prophet</text>
+                    <text x="725" y="88" fill="#94a3b8" font-size="10" text-anchor="middle">Еженедельно</text>
+
+                    <rect x="710" y="105" width="160" height="40" rx="6" fill="#022c22" stroke="#10b981" stroke-width="1"/>
+                    <text x="790" y="130" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle">DefenseAgent (Защита)</text>
+                </svg>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem;">Активность ИИ-Агентов (Live Log)</h4>
+                    <div style="background-color: var(--bg-primary); padding: 1rem; border-radius: 0.25rem; height: 180px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; line-height: 1.5;">
+                        <div><span style="color: var(--accent)">[06:00:02]</span> PatentRadar: Запущено сканирование USPTO/EPO API...</div>
+                        <div><span style="color: var(--accent)">[06:01:45]</span> PatentRadar: Найдено 12 новых публикаций TechCorp Inc.</div>
+                        <div><span style="color: var(--success)">[06:01:48]</span> PatentRadar: Сгенерирован объект <span style="color: #a7f3d0">competitor_alert</span>. Передано в IPGuardian.</div>
+                        <div><span style="color: var(--warning)">[06:02:10]</span> IPGuardian: Расчет RiskScore для патента US2024123456A1... Результат: 8.2/10.</div>
+                        <div><span style="color: var(--danger)">[06:02:12]</span> IPGuardian: АЛЕРТ! Обнаружено пересечение формулы с Product X Gen3.</div>
+                        <div><span style="color: var(--success)">[06:02:15]</span> DefenseAgent: Инициирован пайплайн генерации Defensive Publication...</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem;">Потребление лимитов (DeepSeek-V4-Pro)</h4>
+                    <label>Токены за сегодня (Макс 50к / агент)</label>
+                    <div style="background: var(--bg-primary); height: 20px; border-radius: 10px; margin-bottom: 1rem; overflow: hidden;">
+                        <div style="background: var(--accent); width: 68%; height: 100%; text-align: right; padding-right: 10px; font-size: 0.75rem; line-height: 20px;">34,210 лимит токенов</div>
+                    </div>
+                    <label>Бюджет DefenseAgent (Макс $5.00 за генерацию)</label>
+                    <div style="background: var(--bg-primary); height: 20px; border-radius: 10px; overflow: hidden;">
+                        <div style="background: var(--success); width: 42%; height: 100%; text-align: right; padding-right: 10px; font-size: 0.75rem; line-height: 20px;">$2.10 ср. стоимость</div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted)">
+                        Экономия на патентных пошлинах благодаря Defensive Publications: <strong style="color: var(--success)">$45,000 (оценка)</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="agents" class="view-section">
+            <div class="header">
+                <h2>Спецификация и Запуск Агентов</h2>
+            </div>
+            
+            <div class="agent-grid">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h3>1. PatentRadar</h3>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0 1rem 0;">Мониторинг патентной активности конкурентов в реальном времени (USPTO, EPO, WIPO, CNIPA, Роспатент).</p>
+                    <button onclick="runAgent('PatentRadar')">Запустить сейчас</button>
+                    <button class="btn-secondary" onclick="viewAgentJson('patentRadar')">JSON структура</button>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h3>2. IPGuardian</h3>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0 1rem 0;">Выявление юридических рисков. Расчет RiskScore на основе семантического сходства формул.</p>
+                    <button onclick="runAgent('IPGuardian')">Запустить сейчас</button>
+                    <button class="btn-secondary" onclick="viewAgentJson('ipGuardian')">JSON структура</button>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h3>3. CompetitiveGhost</h3>
+                        <span class="badge badge-warning">Idle</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0 1rem 0;">Поиск по скрытым и нетрадиционным источникам (вакансии, трансфер патентов, arXiv, мобильность кадров).</p>
+                    <button onclick="runAgent('CompetitiveGhost')">Запустить сейчас</button>
+                    <button class="btn-secondary" onclick="viewAgentJson('ghost')">JSON структура</button>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h3>4. Trend Prophet</h3>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0 1rem 0;">Построение графов цитирования в Neo4j и прогнозирование технологических трендов на 1-5 лет.</p>
+                    <button onclick="runAgent('Trend Prophet')">Запустить сейчас</button>
+                    <button class="btn-secondary" onclick="viewAgentJson('trend')">JSON структура</button>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h3>5. DefenseAgent</h3>
+                        <span class="badge badge-info">Trigger Only</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0 1rem 0;">Автоматическая генерация и публикация оборонительных материалов (Defensive Publications) на IP.com/arXiv.</p>
+                    <button onclick="runAgent('DefenseAgent')">Имитировать триггер</button>
+                    <button class="btn-secondary" onclick="viewAgentJson('defense')">JSON структура</button>
+                </div>
+            </div>
+
+            <div id="json-preview-container" class="card" style="margin-top: 2rem; display: none;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <h4 id="json-title">Выходной JSON-объект</h4>
+                    <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="document.getElementById('json-preview-container').style.display='none'">Закрыть</button>
+                </div>
+                <pre id="json-block"></pre>
+            </div>
+        </section>
+
+        <section id="alerts" class="view-section">
+            <div class="header">
+                <h2>Журнал Алертов и Аналитические Отчеты</h2>
+            </div>
+
+            <div class="card">
+                <h3>Актуальные инциденты, требующие внимания (IPGuardian / PatentRadar)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Тип Алерта</th>
+                            <th>Объект/Конкурент</th>
+                            <th>Угроза / Тренд</th>
+                            <th>Критичность / Скор</th>
+                            <th>Дедлайн / Окно</th>
+                            <th>Рекомендуемое действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-danger">infringement_alert</span></td>
+                            <td>Samsung Electronics</td>
+                            <td>Патент US2024123456A1 (пересечение с Product X Gen3)</td>
+                            <td><strong style="color: var(--danger)">8.2 / 10</strong></td>
+                            <td>2025-03-15</td>
+                            <td>Начать design-around или подготовку аргументов недействительности</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warning">competitor_alert</span></td>
+                            <td>TechCorp Inc.</td>
+                            <td>Агрессивное патентование: neural network pruning (12 патентов)</td>
+                            <td><span class="badge badge-warning">High Priority</span></td>
+                            <td>Квартальное окно</td>
+                            <td>Подать встречную заявку по квантовой устойчивости</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-info">strategic_intelligence</span></td>
+                            <td>Acme Robotics</td>
+                            <td>Усиление в области SLAM для беспилотников (найм 12 инженеров Tesla)</td>
+                            <td>Стратегическое</td>
+                            <td>8-14 месяцев</td>
+                            <td>Ускорить собственные патентные подачи по классу G06N 20/00</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-success">technology_forecast</span></td>
+                            <td>Quantum ML Domain</td>
+                            <td>Тренд: variational quantum circuits for NLP (+340% YoY)</td>
+                            <td>Доверие: 91%</td>
+                            <td>Прогноз на 12 мес</td>
+                            <td>Использовать классы G06N 10/00, G06F 17/18</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Выпущенные оборонительные публикации (DefenseAgent)</h3>
+                <table style="margin-top: 0.5rem;">
+                    <thead>
+                        <tr>
+                            <th>Заголовок публикации</th>
+                            <th>Платформы депонирования</th>
+                            <th>Дата публикации</th>
+                            <th>Сила Prior Art</th>
+                            <th>Заблокированные конкуренты</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Method for Efficient Attention Computation in Transformer Models</td>
+                            <td>ipcom#2025-01234, techrxiv@v2, internal</td>
+                            <td>2025-02-28</td>
+                            <td><strong style="color: var(--success)">9.2 / 10</strong></td>
+                            <td>NVIDIA, AMD, Graphcore</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="config" class="view-section">
+            <div class="header">
+                <h2>Глобальная конфигурация среды (.env)</h2>
+            </div>
+            <div class="card" style="max-width: 600px;">
+                <div class="form-group">
+                    <label>AI_CLIENT_ENGINE</label>
+                    <input type="text" value="DeepSeek-V4-Pro" readonly style="opacity: 0.6;">
+                </div>
+                <div class="form-group">
+                    <label>DEEPSEEK_MAX_TOKENS_PER_AGENT (в сутки на агента)</label>
+                    <input type="number" value="50000">
+                </div>
+                <div class="form-group">
+                    <label>DEFENSE_AGENT_MAX_COST (USD max cost per generation)</label>
+                    <input type="number" step="0.01" value="5.00">
+                </div>
+                <div class="form-group">
+                    <label>Формула риск-скоринга IPGuardian</label>
+                    <input type="text" value="0.4*SemanticSimilarity + 0.3*MarketImportance + 0.2*JurisdictionRisk + 0.1*PatentOwnerLitigiousness" readonly style="font-family: monospace; font-size: 0.9rem;">
+                </div>
+                <div class="form-group">
+                    <label>Порог автоматической генерации AlertOutput</label>
+                    <input type="number" step="0.1" value="6.5">
+                </div>
+                <button onclick="alert('Настройки успешно применены к конфигурации Celery и LangGraph!')">Сохранить конфигурацию</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Переключение вкладок без перезагрузки страницы
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            document.getElementById(viewId).classList.add('active');
+            
+            // Подсветка активного пункта меню
+            const activeIndex = { 'dashboard': 0, 'agents': 1, 'alerts': 2, 'config': 3 };
+            document.querySelectorAll('.nav-item')[activeIndex[viewId]].classList.add('active');
+        }
+
+        // Имитация ручного запуска агента
+        function runAgent(agentName) {
+            alert(`Запрос на мгновенную активацию агента [${agentName}] отправлен в Celery Broker. Проверьте логи на Дашборде через несколько секунд.`);
+        }
+
+        // Структуры выходных JSON объектов из технического описания
+        const jsonStructures = {
+            patentRadar: {
+                "type": "competitor_alert",
+                "competitor": "TechCorp Inc.",
+                "new_patents_count": 12,
+                "hot_technology": "neural network pruning",
+                "jurisdictions": ["US", "EP", "CN", "KR"],
+                "recommendation": "Подать встречную заявку по квантовой устойчивости",
+                "priority": "high"
+            },
+            ipGuardian: {
+                "type": "infringement_alert",
+                "patent_id": "US2024123456A1",
+                "owner": "Samsung Electronics",
+                "risk_score": 8.2,
+                "affected_product": "Product X Gen3",
+                "deadline": "2025-03-15",
+                "suggested_action": "Начать design-around или подготовить invalidity argument",
+                "evidence": ["claim_3 overlaps with product spec section 4.2"]
+            },
+            ghost: {
+                "type": "strategic_intelligence",
+                "competitor": "Acme Robotics",
+                "detected_activity": "Усиление в области SLAM для беспилотных автомобилей",
+                "evidence": [
+                    "5 патентов за 3 месяца (ранее 0)",
+                    "Найм 12 инженеров из Tesla Autopilot",
+                    "Лицензирование алгоритмов у MIT"
+                ],
+                "strategic_window": "8-14 месяцев до рыночного продукта",
+                "suggested_counter": "Ускорить собственные filing по смежному классу G06N 20/00"
+            },
+            trend: {
+                "type": "technology_forecast",
+                "domain": "quantum machine learning",
+                "horizon": "12 months",
+                "emerging_trends": [
+                    {
+                        "name": "variational quantum circuits for NLP",
+                        "growth_rate": "+340% YoY",
+                        "key_players": ["Google Quantum AI", "IBM", "Quantinuum"],
+                        "investment_flow": "$2.1B (Q3 2024)",
+                        "peak_prediction": "2026 Q2"
+                    }
+                ],
+                "recommended_patent_classes": ["G06N 10/00", "G06F 17/18"]
+            },
+            defense: {
+                "type": "defensive_publication",
+                "title": "Method for Efficient Attention Computation in Transformer Models",
+                "deposited_to": ["ipcom#2025-01234", "techrxiv@v2"],
+                "publication_date": "2025-02-28T10:00:00Z",
+                "prior_art_strength": 9.2,
+                "blocked_competitors": ["NVIDIA", "AMD", "Graphcore"],
+                "cost_saved": "$45000 (estimated patent filing + prosecution)"
+            }
+        };
+
+        // Отображение JSON по клику
+        function viewAgentJson(agentKey) {
+            const container = document.getElementById('json-preview-container');
+            const block = document.getElementById('json-block');
+            const title = document.getElementById('json-title');
+            
+            title.innerText = `Спецификация структуры объекта для: ${agentKey.toUpperCase()}`;
+            block.innerText = JSON.stringify(jsonStructures[agentKey], null, 4);
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
