@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ИИ-агенты: зоны риска</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Onest:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e6f0;
+    --muted: #7a7890;
+    --accent: #c84b6e;
+    --accent2: #7b5ea7;
+    --accent3: #3d8c7a;
+    --warn: #e07040;
+    --good: #4a9e7c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Onest', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    padding: 2rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(200,75,110,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .tag {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .header h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .section-label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 1.2rem 1.25rem 0.6rem;
+  }
+
+  /* SHOCK BUTTONS */
+  .shocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 1.25rem 0.5rem;
+  }
+  .shock-btn {
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Onest', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.35;
+    transition: all 0.18s;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .shock-btn:active { transform: scale(0.97); }
+  .shock-btn.active {
+    background: var(--surface2);
+    border-color: var(--btn-color, var(--accent));
+    box-shadow: 0 0 0 1px var(--btn-color, var(--accent)) inset;
+  }
+  .shock-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* RADAR */
+  .radar-wrap {
+    padding: 0.5rem 1.25rem;
+    position: relative;
+  }
+  canvas#radar {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+
+  /* ZONE CARDS */
+  .zones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 0 1.25rem;
+  }
+  .zone-card {
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: border-color 0.3s;
+  }
+  .zone-name {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .zone-val {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .zone-delta {
+    font-family: 'Onest', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    margin-left: 3px;
+  }
+
+  /* DETAIL PANEL */
+  .detail {
+    margin: 0.8rem 1.25rem 1.5rem;
+    padding: 1rem 1rem 1.1rem;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: border-color 0.3s;
+  }
+  .detail-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .detail-body {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* RISK ZONES SECTION */
+  .risk-zones { padding: 0 1.25rem 2rem; }
+  .risk-card {
+    margin-bottom: 10px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .risk-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .risk-header:active { background: var(--surface2); }
+  .risk-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .risk-title {
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+    line-height: 1.35;
+  }
+  .risk-arrow {
+    font-size: 18px;
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+  .risk-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.25s;
+    padding: 0 14px;
+  }
+  .risk-body.open {
+    max-height: 600px;
+    padding: 0 14px 14px;
+  }
+  .risk-arrow.open { transform: rotate(90deg); }
+  .risk-body p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .risk-body ul {
+    margin-top: 8px;
+    padding-left: 1.1em;
+  }
+  .risk-body ul li {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+  .risk-body strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .highlight {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  .footer {
+    padding: 1.5rem 1.25rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .footer p {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+  .footer strong {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent2);
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="tag">⚠ Юридические и рисковые зоны</span>
+  <h1>ИИ-агенты в B2B: симулятор шоков</h1>
+  <p>Выберите сценарий — радар покажет деформацию рисков</p>
+</div>
+
+<div class="section-label">Шоковые сценарии</div>
+<div class="shocks" id="btnGrid"></div>
+
+<div class="section-label">Радар рисков</div>
+<div class="radar-wrap">
+  <canvas id="radar"></canvas>
+</div>
+
+<div class="zones" id="zoneCards"></div>
+
+<div class="detail" id="detailPanel">
+  <div class="detail-title" id="pTitle">Выберите сценарий выше</div>
+  <div class="detail-body" id="pSub">Нажмите одну из карточек, чтобы увидеть, как шок воздействует на юридические и операционные зоны риска ИИ-агента.</div>
+</div>
+
+<div class="section-label">6 главных зон риска</div>
+<div class="risk-zones" id="riskZones"></div>
+
+<div class="footer">
+  <p><strong>METHORICS × KAIZEN</strong><br>Симулятор создан для анализа юридических рисков ИИ-агентов в B2B-переговорах. Данные носят аналитический характер.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const ZONE_SHORT = ['ЧЯ', 'Injection', 'Подпись', 'Данные', 'Рынок', 'Атрибуция'];
+const ZONE_FULL = ['Галлюцинации и ЧЯ', 'Prompt Injection', 'Подпись агента', 'Утечка данных', 'Синхронный рынок', 'Атрибуция'];
+const ZONE_COLORS = ['#7b5ea7','#c84b6e','#3d8c7a','#e07040','#3a7fc1','#9a4e7a'];
+const BASE = [35, 40, 50, 45, 30, 55];
+
+const SHOCKS = [
+  { id:'staff', icon:'👤', label:'Потеря ключевых\nсотрудников', color:'#7b5ea7',
+    vals:[70,55,80,60,35,90],
+    title:'Потеря ключевых сотрудников',
+    sub:'Compliance-офицер и архитектор уходят. Атрибуция ответственности взрывается: некому следить за полномочиями агента и обновлять МЧД. Агент продолжает работать без надзора — риск галлюцинаций растёт. Юридически агент становится «ничьим».' },
+  { id:'cash', icon:'💸', label:'Кассовый\nразрыв', color:'#c84b6e',
+    vals:[55,85,60,50,70,65],
+    title:'Кассовый разрыв',
+    sub:'Агент под давлением ликвидности дробит платежи. 115-ФЗ немедленно реагирует — Росфинмониторинг получает уведомление. Prompt injection особенно опасен в момент срочности: злоумышленник «убеждает» агента перевести средства.' },
+  { id:'demand', icon:'📉', label:'Падение\nспроса', color:'#3a7fc1',
+    vals:[60,45,55,40,95,60],
+    title:'Резкое падение спроса',
+    sub:'Все агенты видят одинаковый сигнал и одновременно сбрасывают активы. Синхронный рыночный эффект — аналог Flash Crash 2010. ФАС может расценить это как алгоритмический сговор, даже без умысла.' },
+  { id:'conflict', icon:'🔥', label:'Внутренние\nконфликты', color:'#e07040',
+    vals:[75,50,85,65,40,95],
+    title:'Внутренние конфликты',
+    sub:'Подразделения оспаривают сделки агента. Юридическая значимость подписи становится полем боя. Без МЧД суд будет разбираться годами — каждый указывает на следующего.' },
+  { id:'rep', icon:'📢', label:'Репутационный\nкризис', color:'#9a4e7a',
+    vals:[65,60,70,90,55,75],
+    title:'Репутационный кризис',
+    sub:'СМИ следят за каждым шагом. Контрагенты анализируют поведение агента и восстанавливают вашу переговорную позицию (inference attack). Трансграничная передача данных через зарубежные LLM — нарушение 152-ФЗ в прямом эфире.' },
+  { id:'reg', icon:'⚖️', label:'Регуляторные\nудары', color:'#3d8c7a',
+    vals:[50,45,95,85,65,80],
+    title:'Регуляторные удары',
+    sub:'Регулятор требует подтвердить юридическую значимость всех сделок. Агент без ЭЦП — каждый договор под вопросом. 115-ФЗ и 152-ФЗ проверяются одновременно. Правовой вакуум становится открытым судебным делом.' },
+  { id:'comm', icon:'📡', label:'Разрушение\nкоммуникации', color:'#5e4ea7',
+    vals:[80,90,60,70,50,70],
+    title:'Разрушение коммуникации',
+    sub:'Агент теряет контекст, системы рассинхронизированы. Галлюцинации достигают максимума — агент «домысливает» условия сделок. Косвенные prompt injection через сломанные документы почти неотличимы от нормальных.' },
+  { id:'scale', icon:'🚀', label:'Агрессивное\nмасштабирование', color:'#3d8c7a',
+    vals:[85,75,80,95,75,85],
+    title:'Агрессивное масштабирование',
+    sub:'Все шесть зон одновременно растут. Сотни сделок в день — галлюцинации накапливаются, МЧД не успевают обновляться, данные утекают через масштабируемую инфраструктуру. Наиболее опасный сценарий.' }
+];
+
+const RISK_ZONES = [
+  { num:'01', title:'Галлюцинации и «Чёрный ящик»', color:'#7b5ea7',
+    body:`<p>LLM генерирует правдоподобную, но неверную информацию. Даже у лучших моделей <strong>«hallucination rate»</strong> на сложных документах составляет 3–8%.</p>
+    <p style="margin-top:8px">В цепочке агентов ошибка первого умножается на каждом шаге — эффект <strong>накопленной ошибки</strong>. Пример: агент неверно интерпретирует валюту в спецификации.</p>
+    <span class="highlight" style="background:#7b5ea720;color:#9e7fd4">Риск: кабальная сделка или убытки от недополученной прибыли</span>` },
+  { num:'02', title:'Уязвимость к манипуляциям (Prompt Injection)', color:'#c84b6e',
+    body:`<p>Главная техническая угроза 2026 года. Два типа атак:</p>
+    <ul><li><strong>Прямая</strong> — через чат или интерфейс</li><li><strong>Косвенная</strong> — через PDF или файл, труднее детектируется</li></ul>
+    <p style="margin-top:8px"><strong>Supply chain attack:</strong> злоумышленник компрометирует агента контрагента, и тот присылает вам «отравленное» предложение.</p>
+    <span class="highlight" style="background:#c84b6e20;color:#e07090">Риск: несанкционированные транзакции, прямая потеря средств</span>` },
+  { num:'03', title:'Юридическая значимость подписи агента', color:'#3d8c7a',
+    body:`<p>По 63-ФЗ документ подписывает человек или машина <strong>по доверенности</strong>. ИИ не может иметь ЭЦП.</p>
+    <p style="margin-top:8px">Решение: <strong>МЧД (машиночитаемая доверенность)</strong> с чёткими ограничениями по сумме, типу сделок и контрагентам.</p>
+    <p style="margin-top:8px">В ЕС (AI Act, ст.22) и США уже есть нормы об ответственности за автономные решения. В России — правовой вакуум.</p>
+    <span class="highlight" style="background:#3d8c7a20;color:#5ab09a">Риск: контрагент оспаривает сделку в суде</span>` },
+  { num:'04', title:'Утечки данных (152-ФЗ, 115-ФЗ)', color:'#e07040',
+    body:`<p><strong>Inference attack:</strong> контрагент восстанавливает вашу переговорную позицию по поведению агента — нижнюю цену, дедлайн.</p>
+    <p style="margin-top:8px"><strong>Трансграничная передача:</strong> зарубежные LLM-серверы = нарушение 152-ФЗ по умолчанию.</p>
+    <p style="margin-top:8px"><strong>115-ФЗ:</strong> агент может разбить крупный платёж на мелкие (структурирование). Банк обязан уведомить Росфинмониторинг.</p>
+    <span class="highlight" style="background:#e0704020;color:#e09060">Риск: регуляторные санкции, блокировка счетов</span>` },
+  { num:'05', title:'Синхронное поведение (Market Risk)', color:'#3a7fc1',
+    body:`<p>Десятки компаний с одним агентом одновременно реагируют на изменение условий. Аналог <strong>Flash Crash 2010</strong> — Dow Jones упал на 1000 пунктов за минуты из-за алгоритмов.</p>
+    <p style="margin-top:8px">В ЕС антимонопольные органы уже возбуждали дела против компаний, чьи алгоритмы «случайно» координировали цены — <strong>без умысла</strong>.</p>
+    <span class="highlight" style="background:#3a7fc120;color:#5a9fd4">Риск: алгоритмический сговор, системный сбой отрасли</span>` },
+  { num:'06', title:'Проблема атрибуции ответственности', color:'#9a4e7a',
+    body:`<p>Когда агент причинил ущерб — кто виноват? Разработчик модели? Интегратор? Компания? Сотрудник?</p>
+    <p style="margin-top:8px">Каждый укажет на следующего. В российском праве эта цепочка <strong>не урегулирована</strong>.</p>
+    <p style="margin-top:8px"><strong>Вывод:</strong> договор с контрагентом должен явно фиксировать, кто несёт ответственность за действия агента — иначе суд с непредсказуемым исходом.</p>
+    <span class="highlight" style="background:#9a4e7a20;color:#c07aaa">Риск: правовой вакуум, многолетние судебные разбирательства</span>` }
+];
+
+// Build shock buttons
+const grid = document.getElementById('btnGrid');
+SHOCKS.forEach(s => {
+  const btn = document.createElement('button');
+  btn.className = 'shock-btn';
+  btn.id = 'btn-' + s.id;
+  btn.style.setProperty('--btn-color', s.color);
+  btn.innerHTML = `<span class="shock-icon">${s.icon}</span><span style="white-space:pre-line">${s.label}</span>`;
+  btn.onclick = () => selectShock(s.id);
+  grid.appendChild(btn);
+});
+
+// Build zone cards
+function buildZoneCards(vals) {
+  const wrap = document.getElementById('zoneCards');
+  wrap.innerHTML = '';
+  ZONE_SHORT.forEach((z, i) => {
+    const base = BASE[i];
+    const v = vals ? vals[i] : base;
+    const delta = v - base;
+    const card = document.createElement('div');
+    card.className = 'zone-card';
+    card.style.borderColor = ZONE_COLORS[i] + '44';
+    const col = delta > 25 ? '#e24b4a' : delta > 0 ? '#e07040' : 'var(--text)';
+    card.innerHTML = `<div class="zone-name">${z}</div><div class="zone-val" style="color:${col}">${v}<span class="zone-delta" style="color:${col}">${delta > 0 ? '▲+'+delta : delta < 0 ? '▼'+delta : ''}</span></div>`;
+    wrap.appendChild(card);
+  });
+}
+
+// Build risk zone accordion
+const rz = document.getElementById('riskZones');
+RISK_ZONES.forEach((r, i) => {
+  const card = document.createElement('div');
+  card.className = 'risk-card';
+  card.innerHTML = `
+    <div class="risk-header" onclick="toggleRisk(${i})">
+      <div class="risk-num" style="background:${r.color}22;color:${r.color}">${r.num}</div>
+      <div class="risk-title">${r.title}</div>
+      <span class="risk-arrow" id="arr${i}">›</span>
+    </div>
+    <div class="risk-body" id="body${i}">${r.body}</div>`;
+  rz.appendChild(card);
+});
+
+function toggleRisk(i) {
+  const body = document.getElementById('body'+i);
+  const arr = document.getElementById('arr'+i);
+  const isOpen = body.classList.contains('open');
+  // close all
+  document.querySelectorAll('.risk-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.risk-arrow').forEach(a => a.classList.remove('open'));
+  if (!isOpen) {
+    body.classList.add('open');
+    arr.classList.add('open');
+  }
+}
+
+// Chart
+let chart;
+function initChart() {
+  const ctx = document.getElementById('radar').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ZONE_SHORT.map(z => z),
+      datasets: [
+        { label:'Базовый', data: BASE, borderColor:'#5a5878', backgroundColor:'#5a587822', borderWidth:1.5, pointBackgroundColor:'#5a5878', pointRadius:3, tension:0.3 },
+        { label:'При шоке', data: BASE.slice(), borderColor:'#c84b6e', backgroundColor:'#c84b6e18', borderWidth:2.5, pointBackgroundColor:'#c84b6e', pointRadius:5, tension:0.3 }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 350 },
+      scales: {
+        r: {
+          min:0, max:100,
+          ticks: { stepSize:25, color:'#5a5870', font:{size:10}, backdropColor:'transparent', callback: v => v===0?'':v },
+          grid: { color:'rgba(255,255,255,0.06)' },
+          angleLines: { color:'rgba(255,255,255,0.06)' },
+          pointLabels: { color:'#9a98b8', font:{size:11} }
+        }
+      },
+      plugins: { legend:{display:false}, tooltip:{ callbacks:{ title: ctx => ZONE_FULL[ctx[0].dataIndex], label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}` } } }
+    }
+  });
+}
+
+function selectShock(id) {
+  const s = SHOCKS.find(x => x.id===id);
+  if (!s) return;
+
+  document.querySelectorAll('.shock-btn').forEach(b => { b.classList.remove('active'); b.style.borderColor=''; });
+  const btn = document.getElementById('btn-'+id);
+  btn.classList.add('active');
+
+  document.getElementById('pTitle').textContent = s.title;
+  document.getElementById('pSub').textContent = s.sub;
+  document.getElementById('detailPanel').style.borderColor = s.color + '66';
+
+  buildZoneCards(s.vals);
+
+  chart.data.datasets[1].data = s.vals;
+  chart.data.datasets[1].borderColor = s.color;
+  chart.data.datasets[1].backgroundColor = s.color + '22';
+  chart.data.datasets[1].pointBackgroundColor = s.color;
+  chart.update();
+}
+
+initChart();
+buildZoneCards(null);
+</script>
+</body>
+</html>
