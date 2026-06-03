@@ -1,0 +1,277 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .root { padding: 1.5rem 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .shock-btn {
+    padding: 10px 12px;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-primary);
+    cursor: pointer;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-text-primary);
+    transition: all .15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .shock-btn:hover { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
+  .shock-btn.active { border-width: 1.5px; }
+  .shock-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .shock-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .canvas-wrap { position: relative; width: 100%; }
+  canvas { width: 100% !important; display: block; }
+  .panel {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--border-radius-lg);
+    border: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+  }
+  .panel-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .panel-sub { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 1rem; }
+  .zone-card {
+    padding: 8px 10px;
+    border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-tertiary);
+    font-size: 12px;
+  }
+  .zone-title { font-weight: 500; font-size: 12px; margin-bottom: 2px; }
+  .zone-val { font-size: 18px; font-weight: 500; }
+  .pulse { animation: pulse .8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--color-text-secondary); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+</style>
+
+<div class="root">
+  <h2 class="sr-only">Симулятор шоковых рисков ИИ-агентов в B2B</h2>
+  <div class="shock-label">Выберите шоковый сценарий</div>
+  <div class="grid" id="btnGrid"></div>
+
+  <div class="canvas-wrap">
+    <canvas id="radar" width="680" height="340"></canvas>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#B05538"></div>Базовый уровень</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#E24B4A"></div>При шоке</div>
+  </div>
+
+  <div class="zones" id="zoneCards"></div>
+  <div class="panel" id="detailPanel">
+    <div class="panel-title" id="pTitle">Выберите сценарий выше</div>
+    <div class="panel-sub" id="pSub">Нажмите на одну из карточек, чтобы увидеть, как шок воздействует на юридические и операционные зоны риска ИИ-агента.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const ZONES = [
+  'Галлюцинации\nи ЧЯ',
+  'Prompt\nInjection',
+  'Подпись\nагента',
+  'Утечка\nданных',
+  'Синхронный\nрынок',
+  'Атрибуция\nответственности'
+];
+
+const BASE = [35, 40, 50, 45, 30, 55];
+
+const SHOCKS = [
+  {
+    id: 'staff', icon: 'ti-user-minus', label: 'Потеря ключевых сотрудников', color: '#534AB7',
+    vals: [70, 55, 80, 60, 35, 90],
+    title: 'Шок: потеря ключевых сотрудников',
+    sub: 'Compliance-офицер и архитектор системы уходят одновременно. Зона атрибуции ответственности взрывается: некому следить за полномочиями агента и обновлять МЧД. Риск галлюцинаций растёт — агент продолжает работать без надзора, обновлений и корректировок. Юридически агент становится «ничьим».'
+  },
+  {
+    id: 'cash', icon: 'ti-cash-off', label: 'Кассовый разрыв', color: '#D85A30',
+    vals: [55, 85, 60, 50, 70, 65],
+    title: 'Шок: кассовый разрыв',
+    sub: 'Агент под давлением ликвидности начинает «структурировать» платежи — дробить суммы, ускорять транзакции. 115-ФЗ немедленно реагирует: Росфинмониторинг получает уведомление. Prompt injection-атаки в этот момент особенно опасны — злоумышленник может воспользоваться срочностью и «убедить» агента перевести средства.'
+  },
+  {
+    id: 'demand', icon: 'ti-trending-down', label: 'Резкое падение спроса', color: '#185FA5',
+    vals: [60, 45, 55, 40, 95, 60],
+    title: 'Шок: резкое падение спроса',
+    sub: 'Все агенты на рынке видят одинаковый сигнал и одновременно начинают сбрасывать активы или расторгать контракты. Синхронный рыночный эффект достигает максимума — аналог Flash Crash 2010. ФАС может расценить это как алгоритмический сговор, даже без умысла. Каскадное распространение по контрагентам неизбежно.'
+  },
+  {
+    id: 'conflict', icon: 'ti-flame', label: 'Внутренние конфликты', color: '#854F0B',
+    vals: [75, 50, 85, 65, 40, 95],
+    title: 'Шок: внутренние конфликты',
+    sub: 'Подразделения начинают оспаривать сделки, заключённые агентом. Зона юридической значимости подписи становится полем боя: каждый отдел заявляет, что агент «вышел за рамки полномочий». Атрибуция ответственности достигает пика — кто утверждал эти полномочия? Без МЧД суд будет разбираться годами.'
+  },
+  {
+    id: 'rep', icon: 'ti-alert-triangle', label: 'Репутационный кризис', color: '#993556',
+    vals: [65, 60, 70, 90, 55, 75],
+    title: 'Шок: репутационный кризис',
+    sub: 'Агент получает доступ к переговорным данным в момент, когда СМИ следят за каждым шагом компании. Inference attack: контрагенты анализируют поведение агента и восстанавливают вашу переговорную позицию. Трансграничная передача данных через зарубежные LLM немедленно становится публичной проблемой — нарушение 152-ФЗ в прямом эфире.'
+  },
+  {
+    id: 'reg', icon: 'ti-gavel', label: 'Регуляторные удары', color: '#0F6E56',
+    vals: [50, 45, 95, 85, 65, 80],
+    title: 'Шок: регуляторные удары',
+    sub: 'Регулятор требует подтвердить юридическую значимость всех сделок за последний год. Агент не имеет ЭЦП — каждый договор под вопросом. 115-ФЗ и 152-ФЗ проверяются одновременно. Атрибуция ответственности невозможна без документированной цепочки полномочий. Правовой вакуум превращается в открытое судебное дело.'
+  },
+  {
+    id: 'comm', icon: 'ti-network-off', label: 'Разрушение коммуникации', color: '#3C3489',
+    vals: [80, 90, 60, 70, 50, 70],
+    title: 'Шок: разрушение коммуникации',
+    sub: 'Агент теряет контекст: системы рассинхронизированы, история переговоров фрагментирована. Риск галлюцинаций достигает максимума — агент «домысливает» условия сделок из неполных данных. Косвенные prompt injection-атаки через «сломанные» документы крайне трудно детектировать. Каждая сделка в этот период — потенциальный юридический риск.'
+  },
+  {
+    id: 'scale', icon: 'ti-rocket', label: 'Агрессивное масштабирование', color: '#3B6D11',
+    vals: [85, 75, 80, 95, 75, 85],
+    title: 'Шок: агрессивное масштабирование',
+    sub: 'Все шесть зон риска одновременно растут. Агент заключает сотни сделок в день — галлюцинации накапливаются, атаки труднее отследить, МЧД не успевают обновляться, данные утекают через масштабируемую инфраструктуру. Синхронный рыночный эффект усиливается пропорционально охвату. Это наиболее опасный сценарий.'
+  }
+];
+
+const ZONE_SHORT = ['ЧЯ', 'Injection', 'Подпись', 'Данные', 'Рынок', 'Атрибуция'];
+const ZONE_COLORS = ['#534AB7','#D85A30','#185FA5','#0F6E56','#854F0B','#993556'];
+
+let activeShock = null;
+let chart = null;
+
+function isDark() {
+  return matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function buildButtons() {
+  const grid = document.getElementById('btnGrid');
+  SHOCKS.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'shock-btn';
+    btn.id = 'btn-' + s.id;
+    btn.innerHTML = `<i class="ti ${s.icon}" style="font-size:16px;color:${s.color}" aria-hidden="true"></i><span>${s.label}</span>`;
+    btn.onclick = () => selectShock(s.id);
+    grid.appendChild(btn);
+  });
+}
+
+function buildZoneCards() {
+  const wrap = document.getElementById('zoneCards');
+  wrap.innerHTML = '';
+  ZONE_SHORT.forEach((z, i) => {
+    const base = BASE[i];
+    const shock = activeShock ? activeShock.vals[i] : base;
+    const delta = shock - base;
+    const card = document.createElement('div');
+    card.className = 'zone-card';
+    card.style.borderColor = ZONE_COLORS[i] + '55';
+    card.innerHTML = `
+      <div class="zone-title" style="color:${ZONE_COLORS[i]}">${z}</div>
+      <div class="zone-val" style="color:${delta > 20 ? '#E24B4A' : delta > 0 ? '#BA7517' : 'var(--color-text-primary)'}">${shock}<span style="font-size:11px;font-weight:400;color:var(--color-text-secondary);margin-left:4px">${delta > 0 ? '▲+' + delta : delta < 0 ? '▼' + delta : '—'}</span></div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function selectShock(id) {
+  const s = SHOCKS.find(x => x.id === id);
+  if (!s) return;
+  activeShock = s;
+
+  SHOCKS.forEach(x => {
+    const btn = document.getElementById('btn-' + x.id);
+    btn.classList.remove('active');
+    btn.style.borderColor = '';
+  });
+  const activeBtn = document.getElementById('btn-' + id);
+  activeBtn.classList.add('active');
+  activeBtn.style.borderColor = s.color;
+
+  document.getElementById('pTitle').textContent = s.title;
+  document.getElementById('pSub').textContent = s.sub;
+
+  buildZoneCards();
+  updateChart(s.vals, s.color);
+}
+
+function getTextColor() {
+  return isDark() ? '#c2c0b6' : '#3d3d3a';
+}
+
+function initChart() {
+  const ctx = document.getElementById('radar').getContext('2d');
+  const textColor = getTextColor();
+
+  chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ZONES.map(z => z.split('\n')),
+      datasets: [
+        {
+          label: 'Базовый уровень',
+          data: BASE,
+          borderColor: '#B05538',
+          backgroundColor: '#B0553820',
+          borderWidth: 1.5,
+          pointBackgroundColor: '#B05538',
+          pointRadius: 4,
+          tension: 0.3
+        },
+        {
+          label: 'При шоке',
+          data: BASE.slice(),
+          borderColor: '#E24B4A',
+          backgroundColor: '#E24B4A18',
+          borderWidth: 2,
+          pointBackgroundColor: '#E24B4A',
+          pointRadius: 5,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 400 },
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: {
+            stepSize: 25,
+            color: textColor,
+            font: { size: 11 },
+            backdropColor: 'transparent',
+            callback: v => v === 0 ? '' : v
+          },
+          grid: { color: isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' },
+          angleLines: { color: isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' },
+          pointLabels: {
+            color: textColor,
+            font: { size: 12 }
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => ZONE_SHORT[ctx[0].dataIndex],
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}`
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateChart(vals, color) {
+  chart.data.datasets[1].data = vals;
+  chart.data.datasets[1].borderColor = color;
+  chart.data.datasets[1].backgroundColor = color + '22';
+  chart.data.datasets[1].pointBackgroundColor = color;
+  chart.update();
+}
+
+buildButtons();
+initChart();
+buildZoneCards();
+</script>
