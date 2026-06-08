@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methorics — Рабочая консоль</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="ws">
+<div data-topbar></div>
+
+<div class="workspace">
+  <!-- ===== ЗОНА 1: ДИАЛОГ ===== -->
+  <div class="col">
+    <div class="col-head"><span class="ic" id="d-ic"></span><h3>Ассистент</h3><span class="badge ok" style="margin-left:auto">онлайн</span></div>
+    <div class="dialog">
+      <div class="dialog-stream" id="stream"></div>
+      <div class="composer">
+        <div class="qr" id="qr"></div>
+        <div class="box">
+          <input placeholder="Спросите про ваши права или активы…">
+          <button class="mic" title="Голосовой ввод (локальное распознавание)" id="micBtn"></button>
+          <button class="send" id="sendBtn"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ЗОНА 2: КАРТА ПРАВ ===== -->
+  <div class="col col-center">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div><div class="eyebrow">Карта прав · граница и Среда</div>
+        <h2 class="display" style="font-size:22px;margin-top:4px">Что система знает о ваших правах</h2></div>
+      <div class="spacer" style="flex:1"></div>
+      <span class="faint small" id="hintSel">Нажмите узел — объяснение. Выберите сценарий справа — подсветка уязвимых узлов.</span>
+    </div>
+
+    <div class="card" style="padding:8px;height:460px"><div id="graph" style="height:100%"></div></div>
+
+    <div class="metric-grid" style="margin-top:16px">
+      <div class="metric"><div class="label">${''}Активов в карте</div><div class="num" id="m-assets">6</div><div class="sub">узлов внутри границы</div></div>
+      <div class="metric ok"><div class="label">Подтверждено</div><div class="num">2</div><div class="sub">документами</div></div>
+      <div class="metric warn"><div class="label">Уязвимых</div><div class="num">3</div><div class="sub">тонкие участки границы</div></div>
+      <div class="metric crit"><div class="label">Точек отказа</div><div class="num">2</div><div class="sub">приоритет · домен</div></div>
+    </div>
+  </div>
+
+  <!-- ===== ЗОНА 3: ПАНЕЛЬ ДЕЙСТВИЙ ===== -->
+  <div class="col col-right">
+    <div class="col-body">
+      <!-- maturity -->
+      <div class="card pad">
+        <div class="card-h"><span class="ic" id="mt-ic"></span><h3>Прочность картины</h3></div>
+        <div class="meter">
+          <div class="meter-top"><span class="lab">граница идентичности</span><span class="val">86%</span></div>
+          <div class="meter-track"><div class="meter-fill" id="mfill"></div></div>
+          <div class="meter-ticks"><span>0</span><span>симуляции разблокированы ✓</span></div>
+        </div>
+        <hr class="sep">
+        <div class="small muted" style="margin-bottom:8px">Единые точки отказа (SPOF):</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="small" style="display:flex;gap:8px;align-items:center"><i class="dot-state s-crit"></i>Приоритет произведения не зафиксирован</div>
+          <div class="small" style="display:flex;gap:8px;align-items:center"><i class="dot-state s-warn"></i>Домен — один регистратор</div>
+          <div class="small" style="display:flex;gap:8px;align-items:center"><i class="dot-state s-crit"></i>Бренд не зарегистрирован</div>
+        </div>
+      </div>
+
+      <!-- scenario catalog -->
+      <div class="card pad">
+        <div class="card-h"><span class="ic" id="sc-ic"></span><h3>Шоковые сценарии</h3>
+          <span class="spacer" style="flex:1"></span><span class="faint tiny" id="scCount"></span></div>
+        <div class="chip-row" id="relFilter" style="margin-bottom:12px">
+          <span class="chip active" data-r="all">Все</span>
+          <span class="chip" data-r="high">Высокая релевантность</span>
+        </div>
+        <div class="scn-cat" id="scnList"></div>
+      </div>
+    </div>
+
+    <!-- sticky run bar -->
+    <div style="position:sticky;bottom:0;padding:14px 18px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line)">
+      <div class="small muted" id="runLabel" style="margin-bottom:9px">Выберите сценарий, чтобы прогнать симуляцию</div>
+      <button class="btn btn-gold" id="runBtn" style="width:100%" disabled></button>
+    </div>
+  </div>
+</div>
+
+<script src="methorics.js"></script>
+<script>
+MET.init_ws = function(){
+  MET.buildTopbar({crumb:'Рабочая консоль', back:'onboarding.html?profile='+MET.profile()});
+  document.getElementById('d-ic').innerHTML=MET.ic('ai');
+  document.getElementById('mt-ic').innerHTML=MET.ic('shield');
+  document.getElementById('sc-ic').innerHTML=MET.ic('flame');
+  document.getElementById('micBtn').innerHTML=MET.ic('mic');
+  document.getElementById('sendBtn').innerHTML=MET.ic('send');
+  MET.fillMeter(document.getElementById('mfill'),86);
+  document.querySelector('#runBtn').innerHTML='Прогнать симуляцию '+MET.ic('arrow');
+
+  // graph
+  const graphHost=document.getElementById('graph');
+  MET.renderGraph(graphHost,{});
+
+  // dialog seed
+  const stream=document.getElementById('stream');
+  const msgs=[
+    ['sys','Картина собрана на 86% — симуляции разблокированы.'],
+    ['a','Я построил карту ваших прав. Внутри границы — 6 активов; 3 узла уязвимы. Два критичны: <b>приоритет произведения</b> и <b>незарегистрированный бренд</b>.'],
+    ['a','Рекомендую начать со сценария <b>«Спор о приоритете»</b> — он бьёт по самому тонкому участку. Выбрать его?'],
+    ['u','Да, и ещё посмотрим плагиат.']
+  ];
+  stream.innerHTML=msgs.map(m=>{
+    if(m[0]==='sys')return `<div class="sys-note">${m[1]}</div>`;
+    const who=m[0]==='a'?'assistant':'user';const name=m[0]==='a'?'Methorics':'Вы';
+    return `<div class="msg ${who}"><div class="who">${name}</div><div class="bubble">${m[1]}</div></div>`;
+  }).join('');
+  document.getElementById('qr').innerHTML=['Выбрать «Приоритет»','Что такое граница?','Покажи слабые места'].map(q=>`<span class="chip">${q}</span>`).join('');
+
+  // scenarios
+  const list=document.getElementById('scnList'); let filter='all', selected=null;
+  function relBadge(r){return r==='high'?'<span class="badge crit rel">высокая</span>':(r==='med'?'<span class="badge warn rel">средняя</span>':'<span class="badge rel">низкая</span>');}
+  function draw(){
+    const items=MET.scenarios.filter(s=>filter==='all'||s.rel==='high');
+    document.getElementById('scCount').textContent=items.length+' из '+MET.scenarios.length;
+    list.innerHTML=items.map(s=>`<div class="scn ${selected===s.id?'sel':''}" data-id="${s.id}">
+      <span class="ic">${MET.ic(s.icon)}</span>
+      <div><div class="t">${s.cat}</div><div class="d">${s.title}</div></div>${relBadge(s.rel)}</div>`).join('');
+    list.querySelectorAll('.scn').forEach(el=>el.addEventListener('click',()=>select(el.dataset.id)));
+  }
+  function select(id){selected=id; const s=MET.scenarios.find(x=>x.id===id);
+    draw();
+    MET.renderGraph(graphHost,{affected:s.affected});
+    document.getElementById('hintSel').innerHTML='Подсвечены узлы под ударом: <b>'+s.affected.map(a=>{const n=MET.graph.nodes.find(z=>z.id===a);return n?n.label:a;}).join(', ')+'</b>';
+    document.getElementById('runLabel').innerHTML='Сценарий: <b>'+s.cat+'</b> — '+s.title;
+    const btn=document.getElementById('runBtn'); btn.disabled=false; btn.onclick=()=>location.href='simulation.html?scn='+id+'&profile='+MET.profile();
+  }
+  document.getElementById('relFilter').querySelectorAll('.chip').forEach(ch=>ch.addEventListener('click',()=>{
+    document.getElementById('relFilter').querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));ch.classList.add('active');filter=ch.dataset.r;draw();}));
+  draw();
+};
+</script>
+</body>
+</html>

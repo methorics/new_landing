@@ -1,1 +1,101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methorics — Защита прав · Запуск</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="launch">
+<div data-topbar></div>
 
+<div class="page" style="max-width:1180px">
+  <!-- HERO -->
+  <div class="reveal" style="display:grid;grid-template-columns:1.25fr .95fr;gap:40px;align-items:center;margin:18px 0 38px">
+    <div>
+      <div class="eyebrow" style="margin-bottom:14px">Приватный консультант по интеллектуальной собственности</div>
+      <h1 class="display" style="font-size:42px;line-height:1.08;letter-spacing:-.02em">Цифровой штаб<br>обороны ваших прав</h1>
+      <p class="muted" style="font-size:15.5px;max-width:52ch;margin:16px 0 26px">
+        Methorics строит карту ваших прав, очерчивает границу идентичности правообладателя
+        и прогоняет шоковые сценарии — чтобы вы видели слабые места <b>до</b> того, как они станут проблемой.
+      </p>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <a class="btn btn-primary" id="startBtn" href="onboarding.html">Начать настройку профиля ${''}</a>
+        <span class="small faint">Доступ по лицензии / подписке · активация ключа</span>
+      </div>
+      <div style="display:flex;gap:22px;margin-top:30px" class="small muted">
+        <span style="display:flex;gap:8px;align-items:center" id="f1"></span>
+        <span style="display:flex;gap:8px;align-items:center" id="f2"></span>
+        <span style="display:flex;gap:8px;align-items:center" id="f3"></span>
+      </div>
+    </div>
+    <div class="card" style="padding:8px;height:340px"><div id="heroGraph" style="height:100%"></div></div>
+  </div>
+
+  <!-- PROFILE SELECT -->
+  <div class="card pad reveal" style="animation-delay:.08s">
+    <div class="card-h">
+      <span class="ic" id="ph-ic"></span>
+      <h3>Профиль развёртывания</h3>
+      <span class="faint small">Где исполняется система и хранятся данные — определяет уровень приватности</span>
+    </div>
+    <div class="opt-grid" id="profiles" style="grid-template-columns:1fr 1fr"></div>
+    <hr class="sep">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div class="badge gold" id="selSummary">Выбрано: B · Local-first</div>
+      <span class="faint small" id="selNote"></span>
+      <div class="spacer" style="flex:1"></div>
+      <a class="btn btn-navy" id="goBtn" href="onboarding.html?profile=B">Продолжить с профилем B ${''}</a>
+    </div>
+  </div>
+
+  <p class="legal">Макет интерфейса для предварительного согласования внешнего вида (по пп. 6–9 продуктово-архитектурного документа). Данные на экранах — демонстрационные. Не является юридической консультацией.</p>
+</div>
+
+<div class="wm" id="wm"></div>
+<script src="methorics.js"></script>
+<script>
+MET.init_launch = function(){
+  MET.buildTopbar({crumb:'Запуск'});
+  document.getElementById('wm').innerHTML = MET.logoSVG;
+  document.getElementById('ph-ic').innerHTML = MET.ic('shield');
+  document.getElementById('startBtn').innerHTML = 'Начать настройку профиля ' + MET.ic('arrow');
+  document.getElementById('f1').innerHTML = MET.ic('lock')+' приватно и локально';
+  document.getElementById('f2').innerHTML = MET.ic('net')+' онтология прав';
+  document.getElementById('f3').innerHTML = MET.ic('flame')+' симуляция атак';
+
+  MET.renderGraph(document.getElementById('heroGraph'), {affected:['work','brand']});
+
+  const order=['B','A','C','D','E'];
+  const meta={
+    A:{ux:'UX: средний',cx:'Сложность: высокая',pv:'Приватность: максимальная'},
+    B:{ux:'UX: высокий',cx:'Сложность: средняя',pv:'Приватность: высокая · рекоменд.'},
+    C:{ux:'UX: высокий',cx:'Сложность: сред.–выс.',pv:'Приватность: высокая'},
+    D:{ux:'UX: высокий',cx:'Сложность: высокая',pv:'Приватность: криптогарантия'},
+    E:{ux:'UX: высочайший',cx:'Сложность: низкая',pv:'Приватность: договорная'}
+  };
+  let sel='B';
+  const box=document.getElementById('profiles');
+  box.innerHTML = order.map(k=>{const p=MET.profiles[k],m=meta[k];
+    return `<div class="opt ${k==='B'?'sel':''}" data-k="${k}">
+      <span class="ic">${MET.ic(k==='E'?'layers':(k==='A'?'lock':(k==='D'?'shield':'net')))}</span>
+      <div><div class="t">${p.name}</div>
+        <div class="s">${p.note}</div>
+        <div class="chip-row" style="margin-top:9px">
+          <span class="badge steel">${m.pv}</span><span class="badge">${m.ux}</span><span class="badge">${m.cx}</span></div>
+      </div><span class="pick"></span></div>`;}).join('');
+
+  function choose(k){sel=k;
+    box.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.k===k));
+    document.getElementById('selSummary').textContent='Выбрано: '+MET.profiles[k].name;
+    document.getElementById('selNote').textContent=MET.profiles[k].note;
+    const btn=document.getElementById('goBtn'); btn.innerHTML='Продолжить с профилем '+k+' '+MET.ic('arrow');
+    btn.href='onboarding.html?profile='+k;
+    document.getElementById('startBtn').href='onboarding.html?profile='+k;
+  }
+  box.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>choose(o.dataset.k)));
+  choose('B');
+};
+</script>
+</body>
+</html>

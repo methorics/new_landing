@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methorics — Симуляция</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* run overlay */
+  #run{position:fixed;inset:60px 0 0 0;z-index:50;display:grid;place-items:center;
+    background:radial-gradient(120% 80% at 50% 20%,#fff,var(--paper));transition:opacity .5s}
+  #run.gone{opacity:0;pointer-events:none}
+  .runner{width:min(560px,90vw);text-align:center}
+  .runner .spin{width:64px;height:64px;margin:0 auto 18px;position:relative}
+  .runner .spin svg{width:100%;height:100%;animation:spin 2.4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .run-step{display:flex;gap:10px;align-items:center;padding:9px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--surface);margin-top:8px;opacity:0;transform:translateX(-8px);
+    transition:.35s;text-align:left;font-size:13px}
+  .run-step.on{opacity:1;transform:none}
+  .run-step .d{width:8px;height:8px;border-radius:50%;background:var(--steel-soft);flex:none}
+  .run-step.on .d{background:var(--ok)}
+  .tl{position:relative;padding-left:6px}
+  .tl-item{display:flex;gap:14px;padding:0 0 18px 0;position:relative}
+  .tl-item:not(:last-child)::before{content:"";position:absolute;left:13px;top:26px;bottom:-4px;width:2px;background:var(--line)}
+  .tl-dot{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:600;z-index:1}
+  .tl-dot.breach{background:var(--crit)} .tl-dot.fail{background:var(--warn)} .tl-dot.hold{background:var(--ok)}
+  .tl-body b{font-size:13.5px;color:var(--navy)} .tl-body .n{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .tl-time{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint)}
+</style>
+</head>
+<body data-page="sim">
+<div data-topbar></div>
+
+<!-- RUN OVERLAY -->
+<div id="run"><div class="runner">
+  <div class="spin"></div>
+  <div class="eyebrow">Прогон симуляции</div>
+  <h2 class="display" id="runTitle" style="font-size:22px;margin:8px 0 18px"></h2>
+  <div id="runSteps"></div>
+</div></div>
+
+<div class="page" id="result" style="max-width:1180px;opacity:0">
+  <!-- header + verdict -->
+  <div style="display:flex;align-items:center;gap:14px;margin:6px 0 20px;flex-wrap:wrap">
+    <div><div class="eyebrow" id="scnCat"></div>
+      <h1 class="display" style="font-size:26px;margin-top:6px" id="scnTitle"></h1></div>
+    <div class="spacer" style="flex:1"></div>
+    <a class="btn btn-ghost" id="backWs"></a>
+    <button class="btn btn-ghost" id="rerun"></button>
+  </div>
+
+  <div class="verdict reveal" id="verdict"></div>
+
+  <!-- metrics -->
+  <div class="metric-grid reveal" id="metrics" style="margin-top:18px;animation-delay:.06s"></div>
+
+  <!-- attack + radar -->
+  <div class="grid-2-asym" style="margin-top:20px">
+    <div class="card pad reveal" style="animation-delay:.1s">
+      <div class="card-h"><span class="ic" id="at-ic"></span><h3>Дерево атаки · хронология</h3></div>
+      <div class="tl" id="timeline"></div>
+    </div>
+    <div class="card pad reveal" style="animation-delay:.14s">
+      <div class="card-h"><span class="ic" id="rd-ic"></span><h3>Поза защиты · до/после</h3></div>
+      <div id="radar"></div>
+      <div style="display:flex;gap:14px;justify-content:center;font-size:11.5px;margin:4px 0 12px">
+        <span style="display:flex;gap:6px;align-items:center"><i class="dot-state" style="background:#BC3E2C"></i>сейчас</span>
+        <span style="display:flex;gap:6px;align-items:center"><i class="dot-state" style="background:#2E6DA4"></i>после рекомендаций</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="ba" style="width:100%"></button>
+      <div class="small" id="baNote" style="text-align:center;margin-top:10px;color:var(--ink-faint)"></div>
+    </div>
+  </div>
+
+  <!-- affected graph -->
+  <div class="card pad reveal" style="margin-top:20px;animation-delay:.18s">
+    <div class="card-h"><span class="ic" id="g-ic"></span><h3>Карта прав · затронутые узлы</h3>
+      <span class="faint small" style="margin-left:auto">Красный контур — узлы под ударом сценария</span></div>
+    <div style="height:380px"><div id="simGraph" style="height:100%"></div></div>
+  </div>
+
+  <!-- recommendations -->
+  <div style="margin-top:26px">
+    <div class="card-h"><span class="ic" id="rc-ic"></span><h3 style="font-size:17px">Рекомендации · привязаны к уязвимостям</h3></div>
+    <div id="recs" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+
+  <!-- upsell -->
+  <div class="upsell reveal" id="upsell" style="margin-top:20px"></div>
+
+  <p class="legal">Оценки риска получены из структурной модели и демонстрационных приоров; формулировки информационные, не являются юридической консультацией и не заменяют оценку профильного консультанта.</p>
+</div>
+
+<script src="methorics.js"></script>
+<script>
+MET.init_sim = function(){
+  const scnId=MET.qs('scn')||'priority';
+  const sc=MET.scenarios.find(s=>s.id===scnId)||MET.scenarios[0];
+  const sim=MET.simFor(scnId);
+  MET.buildTopbar({crumb:'Симуляция', back:'workspace.html?profile='+MET.profile()});
+
+  // run overlay
+  document.querySelector('#run .spin').innerHTML=MET.logoSVG;
+  document.getElementById('runTitle').textContent=sc.title;
+  const rs=document.getElementById('runSteps');
+  const steps=['Загрузка графа прав и границы','Инъекция события Среды','Обход дерева атаки (распространение)','Монте-Карло над исходами','Скоринг экспозиции и SPOF','Сборка рекомендаций'];
+  rs.innerHTML=steps.map(s=>`<div class="run-step"><span class="d"></span>${s}</div>`).join('');
+  const stepEls=[...rs.querySelectorAll('.run-step')];
+  stepEls.forEach((el,i)=>setTimeout(()=>el.classList.add('on'),250+i*230));
+  setTimeout(()=>{document.getElementById('run').classList.add('gone');
+    const r=document.getElementById('result'); r.style.transition='opacity .5s'; r.style.opacity='1'; render();}, 250+steps.length*230+450);
+
+  function render(){
+    document.getElementById('at-ic').innerHTML=MET.ic('flame');
+    document.getElementById('rd-ic').innerHTML=MET.ic('chart');
+    document.getElementById('g-ic').innerHTML=MET.ic('net');
+    document.getElementById('rc-ic').innerHTML=MET.ic('check');
+    document.getElementById('scnCat').textContent=sc.cat;
+    document.getElementById('scnTitle').textContent=sc.title;
+    document.getElementById('backWs').innerHTML=MET.ic('arrow')+' К консоли';
+    document.getElementById('backWs').href='workspace.html?profile='+MET.profile();
+    document.getElementById('rerun').innerHTML=MET.ic('refresh')+' Прогнать заново';
+    document.getElementById('rerun').onclick=()=>location.reload();
+
+    // verdict
+    document.getElementById('verdict').className='verdict reveal '+sim.state;
+    document.getElementById('verdict').innerHTML=`<div class="grade">${sim.grade}</div>
+      <div><h2>${sim.vtitle}</h2><p>${sim.vdesc}</p></div>`;
+
+    // metrics
+    document.getElementById('metrics').innerHTML=sim.metrics.map(m=>`
+      <div class="metric ${m.state}"><div class="label"><span class="tip">${m.label}<span class="tipbox">${m.tip}</span></span></div>
+      <div class="num">${m.num}</div><div class="sub">${m.sub}</div></div>`).join('');
+
+    // timeline
+    document.getElementById('timeline').innerHTML=sim.attack.map(a=>{
+      const ico=a.res==='hold'?'check':(a.res==='breach'?'alert':'alert');
+      return `<div class="tl-item"><div class="tl-dot ${a.res}">${MET.ic(ico)}</div>
+        <div class="tl-body"><div class="tl-time">${a.t}</div><b>${a.move}</b><div class="n">${a.note}</div></div></div>`;}).join('');
+
+    // radar
+    let after=false;
+    const radarEl=document.getElementById('radar');
+    radarEl.innerHTML=MET.radar(sim.radar,false);
+    const baBtn=document.getElementById('ba');
+    baBtn.innerHTML=MET.ic('spark')+' Показать эффект рекомендаций';
+    baBtn.onclick=()=>{after=!after; radarEl.innerHTML=MET.radar(sim.radar,after);
+      baBtn.innerHTML=after?MET.ic('refresh')+' Скрыть «после»':MET.ic('spark')+' Показать эффект рекомендаций';
+      const p0=sim.metrics[0].num;
+      document.getElementById('baNote').innerHTML=after?'Пересчёт: P(исхода) <b style="color:var(--crit)">'+p0+'</b> → <b style="color:var(--ok)">снижается</b> при принятии плана':'';};
+
+    // affected graph
+    MET.renderGraph(document.getElementById('simGraph'),{affected:sc.affected});
+
+    // recs
+    document.getElementById('recs').innerHTML=sim.recs.map((r,i)=>`
+      <div class="rec reveal" style="animation-delay:${.2+i*.05}s">
+        <div class="pri">${i+1}</div>
+        <div class="body">
+          <div class="vuln">${MET.ic('alert')} Уязвимость: ${r.vuln}</div>
+          <div class="title">${r.title}</div>
+          <div class="desc">${r.desc}</div>
+          <div class="meta"><span class="badge">усилие: ${r.effort}</span><span class="badge steel">эффект: ${r.impact}</span>${r.service?'<span class="badge gold">'+MET.ic('hand')+' услуга</span>':''}</div>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm">${MET.ic('check')} Чек-лист самому</button>
+            ${r.service?`<button class="btn btn-navy btn-sm">${MET.ic('hand')} Передать подрядчику: ${r.service}</button>`:''}
+          </div>
+        </div></div>`).join('');
+
+    // upsell
+    document.getElementById('upsell').innerHTML=`<h4>${MET.ic('spark')} ${sim.upsell.title}</h4>
+      <p class="muted small" style="margin:8px 0 14px;max-width:70ch">${sim.upsell.desc}</p>
+      <button class="btn btn-gold">${MET.ic('hand')} ${sim.upsell.cta}</button>
+      <span class="faint small" style="margin-left:12px">проверенный исполнитель · фикс. стоимость · SLA</span>`;
+  }
+};
+</script>
+</body>
+</html>
